@@ -1,0 +1,55 @@
+name: IntrocourseApp # TODO: Adjust Name
+settings:
+  DEVELOPMENT_TEAM: T7PP2KY2B6
+packages:
+  SwiftCollections:
+    url: https://github.com/apple/swift-collections 
+    from: 1.3.0
+
+targets:
+  IntrocourseApp:  # TODO: Adjust Name  
+    type: application
+    platform: iOS
+    deploymentTarget:
+      iOS: 18.0
+    sources: 
+      - path: IntrocourseApp # TODO: Adjust Name 
+    scheme: {}
+    dependencies:
+      - package: SwiftCollections
+        product: Collections
+
+    info:
+      path: IntrocourseApp/Supporting/Info.plist 
+      properties:
+        CFBundleDisplayName: $(DISPLAY_NAME)
+        CFBundleLocalizations: [ en ]
+        CFBundlePackageType: $(PRODUCT_BUNDLE_PACKAGE_TYPE)
+        ITSAppUsesNonExemptEncryption: NO
+        UILaunchScreen:
+          UIViewControllerBasedStatusBarAppearance: false
+    settings:
+      TARGETED_DEVICE_FAMILY: 1
+      PRODUCT_NAME: IntrocourseApp # TODO: Adjust app name
+      INFOPLIST_FILE: IntrocourseApp/Supporting/Info.plist # TODO: Adjust app name
+      PRODUCT_BUNDLE_IDENTIFIER: de.tum.cit.ase.ios25.IntrocourseApp # TODO: Adjust app name
+      ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS: 1
+      ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+    postCompileScripts:
+      - script: |-
+          if [[ "${CONFIGURATION}" = Release ]]; then
+            # Do not extra lint in CI
+            exit 0
+          fi
+
+          if [[ "$(uname -m)" == arm64 ]]; then
+              export PATH="/opt/homebrew/bin:$PATH"
+          fi
+
+          if which swiftlint > /dev/null; then
+              swiftlint
+          else
+              echo "warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint"
+          fi
+        name: SwiftLint
+        basedOnDependencyAnalysis: false
