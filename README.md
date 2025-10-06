@@ -1,6 +1,7 @@
 # Nicolas Fliegel's Intro Course App
 
-Welcome to your project repository! To pass the intro course, you will build a unique iOS app using SwiftUI. There are no limitations on the app’s functionality—be as creative as you like. Your app must, however, satisfy the **quality attributes & external constraints** specified in the course materials.
+Hi there, I'm Nico :wave:
+I'm a current master student in Computer Science.
 
 ## Local development
 For your Intro Course App, you will use XcodeGen to manage your Xcode Project. 
