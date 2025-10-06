@@ -77,31 +77,31 @@ Solving this matters, because accessible communication is a prerequisite for aut
 
 #### Functional Requirements (User Stories)
 
-1. Real-time speech capture
+1. **Real-time speech capture** <br />
 As a hearing person, I want to press-and-hold to record my speech so that the signer can see the translation right after I finish.
 
-2. Word lookup & phrase assembly
+2. **Word lookup & phrase assembly** <br />
 As a Deaf signer, I want each spoken word matched to a photo of the corresponding sign so that a whole phrase plays as a sequence.
 
-3. Smooth morph transitions
+3. **Smooth morph transitions** <br />
 As a Deaf signer, I want smooth visual transitions between consecutive sign photos so that the sequence is easy to follow.
 
-4. Unknown word detection & prompt
+4. **Unknown word detection & prompt** <br />
 As a user, I want the app to flag any word not found in the library and prompt me to add it so that the phrase can still be completed.
 
-4. Add word–sign pair (capture flow)
+4. **Add word–sign pair** (capture flow) <br />
 As a user, I want to create a new word–sign pair by taking a photo of myself signing the word so that it’s available immediately.
 
-5. Replay & granular controls
+5. **Replay & granular controls** <br />
 As a Deaf signer, I want play/pause, previous/next word, and “replay current word” so that I can review unclear parts.
 
-6. Library management
+6. **Library management** <br />
 As a user, I want to browse, search, edit, and delete my word–sign pairs so that I can keep the library clean.
 
-9. Privacy & local storage
+9. **Privacy & local storage** <br />
 As a privacy-conscious user, I want my audio and sign photos stored locally by default with a one-tap “Clear data” so that my content stays private.
 
-10. Clear error guidance
+10. **Clear error guidance** <br />
 As a user, I want helpful messages when mic/camera permissions are denied or noise/blur is detected so that I know how to fix it.
 
 #### Quality Attributes & External Constraints
