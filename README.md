@@ -63,21 +63,46 @@ git config core.hooksPath .githooks
 
 ## Project Documentation
 
-This README serves as your primary documentation. Update it as your project evolves.
+**Papaya** is a spoken-to-sign language translation app that bridges communication between hearing and Deaf or hard-of-hearing users.  
+It listens to short spoken phrases, matches each word to a photo of the corresponding sign from a local library, and displays the sequence with smooth transitions.  
+Users can add missing word-sign pairs by taking their own photos, building a personalized signing library over time.
 
 ### Problem Statement (max. 500 words)
 
-*TODO: Add your problem statement here.*
+Millions of Deaf and hard-of-hearing (DHH) people rely on sign languages (around 80.000 in Germany) for natural, fluent communication. In day-to-day interactions at offices, clinics, universities, and public transit, spontaneous access to human interpreters is rare, while text chat and lip-reading are slow, inaccurate, or cognitively demanding. Hearing people often don't know even basic signs, which turns simple, time-critical exchanges into frustrating experiences and social exclusion.
+My app addresses this gap by translating short spoken statements into clear, animated sign output that a signer can immediately understand. The primary users are DHH signers who need fast comprehension of what a hearing person just said. Secondary users include hearing peers, staff, educators, and family members who want to communicate respectfully without waiting for an interpreter.
+Solving this matters, because accessible communication is a prerequisite for autonomy, safety, and equal participation. For instance, in university life, it affects onboarding, group work, office hours, and emergency information, moments where delays or misunderstandings can have outsized consequences.
 
 ### Requirements
 
 #### Functional Requirements (User Stories)
 
-*TODO: List the user stories that your app fulfills. These should be added to the GitLab product backlog as issues. Discuss and refine them with your tutor.*
+1. **Real-time speech capture** <br />
+As a hearing person, I want to press-and-hold to record my speech so that the signer can see the translation right after I finish.
 
-- As a [user], I want to [action] so that [goal].
+2. **Word lookup & phrase assembly** <br />
+As a Deaf signer, I want each spoken word matched to a photo of the corresponding sign so that a whole phrase plays as a sequence.
 
-For Example (an Expense Tracking App): As a [student], I want to [see all my monthly transactions] so that [I can make better financial decisions].
+3. **Smooth morph transitions** <br />
+As a Deaf signer, I want smooth visual transitions between consecutive sign photos so that the sequence is easy to follow.
+
+4. **Unknown word detection & prompt** <br />
+As a user, I want the app to flag any word not found in the library and prompt me to add it so that the phrase can still be completed.
+
+4. **Add word–sign pair** (capture flow) <br />
+As a user, I want to create a new word–sign pair by taking a photo of myself signing the word so that it’s available immediately.
+
+5. **Replay & granular controls** <br />
+As a Deaf signer, I want play/pause, previous/next word, and “replay current word” so that I can review unclear parts.
+
+6. **Library management** <br />
+As a user, I want to browse, search, edit, and delete my word–sign pairs so that I can keep the library clean.
+
+9. **Privacy & local storage** <br />
+As a privacy-conscious user, I want my audio and sign photos stored locally by default with a one-tap “Clear data” so that my content stays private.
+
+10. **Clear error guidance** <br />
+As a user, I want helpful messages when mic/camera permissions are denied or noise/blur is detected so that I know how to fix it.
 
 #### Quality Attributes & External Constraints
 
