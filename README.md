@@ -67,7 +67,9 @@ This README serves as your primary documentation. Update it as your project evol
 
 ### Problem Statement (max. 500 words)
 
-*TODO: Add your problem statement here.*
+Millions of Deaf and hard-of-hearing (DHH) people rely on sign languages (around 80.000 in Germany) for natural, fluent communication. In day-to-day interactions at offices, clinics, universities, and public transit, spontaneous access to human interpreters is rare, while text chat and lip-reading are slow, inaccurate, or cognitively demanding. Hearing people often don't know even basic signs, which turns simple, time-critical exchanges into frustrating experiences and social exclusion.
+My app addresses this gap by translating short spoken statements into clear, animated sign output that a signer can immediately understand. The primary users are DHH signers who need fast comprehension of what a hearing person just said. Secondary users include hearing peers, staff, educators, and family members who want to communicate respectfully without waiting for an interpreter.
+Solving this matters, because accessible communication is a prerequisite for autonomy, safety, and equal participation. For instance, in university life, it affects onboarding, group work, office hours, and emergency information, moments where delays or misunderstandings can have outsized consequences.
 
 ### Requirements
 
