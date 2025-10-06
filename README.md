@@ -63,7 +63,9 @@ git config core.hooksPath .githooks
 
 ## Project Documentation
 
-This README serves as your primary documentation. Update it as your project evolves.
+**Papaya** is a spoken-to-sign language translation app that bridges communication between hearing and Deaf or hard-of-hearing users.  
+It listens to short spoken phrases, matches each word to a photo of the corresponding sign from a local library, and displays the sequence with smooth transitions.  
+Users can add missing word-sign pairs by taking their own photos, building a personalized signing library over time.
 
 ### Problem Statement (max. 500 words)
 
@@ -75,11 +77,54 @@ Solving this matters, because accessible communication is a prerequisite for aut
 
 #### Functional Requirements (User Stories)
 
-*TODO: List the user stories that your app fulfills. These should be added to the GitLab product backlog as issues. Discuss and refine them with your tutor.*
+1. Real-time speech capture
 
-- As a [user], I want to [action] so that [goal].
+As a hearing person, I want to press-and-hold to record my speech so that the signer can see the translation right after I finish.
+Acceptance: For ≤15 spoken words, playback begins ≤2s after I release the mic.
+Word lookup & phrase assembly
+As a Deaf signer, I want each spoken word matched to a photo of the corresponding sign so that a whole phrase plays as a sequence.
+Acceptance: Given a 3-word phrase with all words in the library, the app shows those 3 sign photos in order with no gaps and no network required.
 
-For Example (an Expense Tracking App): As a [student], I want to [see all my monthly transactions] so that [I can make better financial decisions].
+2. Smooth morph transitions
+
+As a Deaf signer, I want smooth visual transitions between consecutive sign photos so that the sequence is easy to follow.
+Acceptance: Between photos, a default morph/crossfade of ~300ms occurs; I can change transition duration in Settings to 0/200/300/600ms, and the choice persists per session.
+
+3. Unknown word detection & prompt
+As a user, I want the app to flag any word not found in the library and prompt me to add it so that the phrase can still be completed.
+Acceptance: For an unknown word, the UI highlights it and shows “Add sign”; choosing it opens the capture flow (see next story).
+
+4. Add word–sign pair (capture flow)
+As a user, I want to create a new word–sign pair by taking a photo of myself signing the word so that it’s available immediately.
+Acceptance: Capture uses the chosen camera, shows framing tips, allows retake/crop, requires entering the word label, and saves locally; after saving, the phrase replays including the new photo.
+
+5. Replay & granular controls
+As a Deaf signer, I want play/pause, previous/next word, and “replay current word” so that I can review unclear parts.
+Acceptance: Controls work during playback; “replay” replays just the current photo + transition; controls remain responsive (<100ms).
+
+6. Library management
+As a user, I want to browse, search, edit, and delete my word–sign pairs so that I can keep the library clean.
+Acceptance: A local list shows entries with word label and thumbnail; I can rename, replace photo, or delete; changes reflect immediately in future translations.
+
+7. Labels under photos
+As a Deaf signer, I want the word label shown under each photo so that I can confirm which sign I’m seeing.
+Acceptance: Each displayed photo includes the word label; a Settings toggle turns labels on/off.
+
+8. Offline operation
+As a user, I want the app to translate using my on-device library without internet so that it works anywhere.
+Acceptance: In airplane mode, known words still render; adding a new word via camera still works; nothing fails due to lack of network.
+
+9. Privacy & local storage
+As a privacy-conscious user, I want my audio and sign photos stored locally by default with a one-tap “Clear data” so that my content stays private.
+Acceptance: No uploads occur unless I explicitly enable cloud backup (off by default); “Clear data” removes library, history, and cached audio (system permissions unaffected).
+
+10. Clear error guidance
+As a user, I want helpful messages when mic/camera permissions are denied or noise/blur is detected so that I know how to fix it.
+Acceptance: Mic/camera denial shows an action to open Settings; noisy audio suggests retry; blurred capture suggests retake.
+
+Performance guardrails
+As a user, I want the app to feel responsive and not drain the battery during short sessions so that it’s reliable for daily use.
+Acceptance: Cold start ≤3s on reference device; playback begins ≤2s after mic release; morphing stays ≥30fps; 
 
 #### Quality Attributes & External Constraints
 
