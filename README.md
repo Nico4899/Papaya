@@ -113,43 +113,19 @@ As a user, I want helpful error messages when permissions are denied or noise/bl
 
 #### Glossary (Abbott’s Technique)
 
-| Terms    | Definition      | Type    |
-| ------------- | ------------- | ------------- |
-| Papaya (App) | The iOS app that translates short speech into a sequence of sign photos. | Entity |
-| User | Any person using Papaya (either party in the conversation). | Entity |
-| Hearing User | A user who speaks into the app. | Entity |
-| Deaf Signer | A Deaf or hard-of-hearing user who reads the sign sequence. | Entity |
-| Spoken Statement | A short, recorded segment of speech captured by the app. | Entity |
-| Transcript | The text produced from a statement by speech recognition. | Entity |
-| Word | A single lowercase sequence of letters extracted from the transcript. | Entity |
-| Sign | The visual representation of a word in american sign language. | Entity |
-| Sign Photo | A still image that shows how to perform a sign. | Entity |
-| Sign Entry | A stored pair of word-sign in the local database. | Entity |
-| Sign Library | The local collection of sign entries on the device. | Entity |
-| Sign Sequence | An ordered list of sign photos corresponding to the transcript. | Entity |
-| Transition | The visual effect used between consecutive sign photos. | Entity |
-| Playback Controls | UI to play/pause, go to previous/next token, and replay current token. | Entity |
-| Missing Word | A token in the transcript with no matching sign entry. | Entity |
-| Prompt | An on-screen call-to-action to add a sign entry for a missing word. | Entity |
-| Permissions | OS-level rights to use microphone and camera. | Entity |
-| Clear Data | A one-tap action that deletes all local content and resets the sign library. | Operation |
-| Capture Speech | Press-and-hold to record a spoken statement via the microphone. | Operation |
-| Transcribe Speech | Convert the utterance to a transcript using speech recognition. | Operation |
-| Lookup Word | Search the sign library for a token’s matching sign entry. | Operation |
-| Assemble Sequence | Build the sign sequence from matched sign entries. | Operation |
-| Apply Transition | Render the configured visual transition between photos. | Operation |
-| Detect Missing Word | Flag words without a sign entry. | Operation |
-| Prompt Add Entry | Display a prompt asking the user to add a sign entry. | Operation |
-| Capture Image | Take a camera photo to represent a sign. | Operation |
-| Save Entry | Persist a new sign entry to the sign library. | Operation |
-| Play/Pause | Start or stop automatic advancement through the sign sequence. | Operation |
-| Next/Previous | Navigate forward/backward by one token in the sequence. | Operation | 
-| Replay Current | Re-show the sign photo for the current token. | Operation | 
-| Search Library | Filter sign entries by word. | Operation | 
-| Edit Entry | Update a sign entry's word or image. | Operation |
-| Delete Entry | Remove a sign entry from the library. | Operation |
-| Handle Permission Error | Show guidance to grant mic/camera permissions. | Operation |
-| Detect Noise/Blur | Surface tips when audio is noisy or an image is blurry. | Operation |
+| Terms    | Definition      |
+| ------------- | ------------- | 
+| User | Any person using Papaya. Is either a hearing user or a deaf signer |
+| Hearing User | Person who speaks into Papaya. Creates a spoken statement. | 
+| Deaf Signer | A deaf or hard-of-hearing person who reads the sign sequence. |
+| Spoken Statement | A short, recorded segment of speech recorded by the hearing user. Becomes a transcript. | 
+| Transcript | The text produced from the spoken statement. Used to build a sign sequence from the sign librry and may reveal missing signs. |
+| Sign Photo | Image showing a sign. Included in a sign entry and displayed within a sign sequence. |
+| Sign Entry | A stored word-sign pair kept in the sign library and referenced by sign sequences. | 
+| Sign Library | Collection of sign entries on the device. Supplies entries to build sign sequence and accepts new sign entries. |
+| Sign Sequence | Ordered sequence of sign photos. Built from a transcript via the sign library and viewed by the deaf signer. | 
+| Missing Word | Word in the transcript without a matching sign entry. Triggers a prompt to add one. | 
+| Prompt | Message asking to add a sign. Leads to capturing a sign photo to create sign entry. | 
 
 #### Analysis Object Model
 
