@@ -21,16 +21,21 @@ struct WelcomeView: View {
                 .multilineTextAlignment(.center)
                 .foregroundStyle(.secondary)
 
-            Button("Get Started") {
-                // TODO: Navigate to next view
+            NavigationLink {
+                TranslatorContainerView()
+            } label: {
+                Text("Get Started")
+                    .frame(maxWidth: .infinity)
             }
             .buttonStyle(.borderedProminent)
             .padding(.top, 10)
         }
         .padding()
+        .navigationTitle("Welcome")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
 #Preview {
-    WelcomeView()
+    NavigationStack { WelcomeView() }
 }
