@@ -63,46 +63,46 @@ git config core.hooksPath .githooks
 
 ## Project Documentation
 
-**Papaya** is a spoken-to-sign language translation app that bridges communication between hearing and Deaf or hard-of-hearing users.  
-It listens to short spoken phrases, matches each word to a photo of the corresponding sign from a local library, and displays the sequence with smooth transitions.  
-Users can add missing word-sign pairs by taking their own photos, building a personalized signing library over time.
+**Papaya** is a spoken-to-sign language translation app that bridges communication between hearing and deaf users.  
+It listens to short spoken phrases, matches each word to a photo of the corresponding sign from a local sign library, and displays the sequence with smooth transitions.  
+Users can add missing sign entries by taking their own photos, building a personalized sign library over time.
 
-### Problem Statement (max. 500 words)
+### Problem Statement
 
-Millions of Deaf and hard-of-hearing (DHH) people rely on sign languages (around 80.000 in Germany) for natural, fluent communication. In day-to-day interactions at offices, clinics, universities, and public transit, spontaneous access to human interpreters is rare, while text chat and lip-reading are slow, inaccurate, or cognitively demanding. Hearing people often don't know even basic signs, which turns simple, time-critical exchanges into frustrating experiences and social exclusion.
-My app addresses this gap by translating short spoken statements into clear, animated sign output that a signer can immediately understand. The primary users are DHH signers who need fast comprehension of what a hearing person just said. Secondary users include hearing peers, staff, educators, and family members who want to communicate respectfully without waiting for an interpreter.
-Solving this matters, because accessible communication is a prerequisite for autonomy, safety, and equal participation. For instance, in university life, it affects onboarding, group work, office hours, and emergency information, moments where delays or misunderstandings can have outsized consequences.
+Millions of deaf signers rely on sign languages for natural, fluent communication. In day-to-day interactions at offices, clinics, universities, and public transit, spontaneous access to human interpreters is rare, while text chat and lip-reading are slow, inaccurate, or cognitively demanding. Hearing people often don't know even basic signs, which turns simple, time-critical exchanges into frustrating experiences and social exclusion.
+Papaya addresses this gap by translating short spoken statements into a transcript, matching each word to a sign entry in a sign library, and presenting an ordered sign sequence with smooth transitions. The primary users are deaf signers who need fast comprehension of what a hearing person just said. Secondary users include hearing users, staff, educators, and family members who want to communicate respectfully without waiting for an interpreter.
+Solving this matters, because accessible communication is a prerequisite for autonomy, safety, and equal participation. Papaya keeps audio and sign photos local by default and offers clear data to remove all stored content with one tap.
 
 ### Requirements
 
 #### Functional Requirements (User Stories)
 
 1. **Real-time speech capture** <br />
-As a hearing person, I want to press-and-hold to record my speech so that the signer can see the translation right after I finish.
+As a hearing user, I want to capture speech (press-and-hold) so that the deaf signer can see the sign sequence right after I finish.
 
-2. **Word lookup & phrase assembly** <br />
-As a Deaf signer, I want each spoken word matched to a photo of the corresponding sign so that a whole phrase plays as a sequence.
+2. **Word lookup & sequence assembly** <br />
+As a Deaf signer, I want each spoken word in the transcript matched to a sign entry so that a whole sign sequence plays in order.
 
-3. **Smooth morph transitions** <br />
-As a Deaf signer, I want smooth visual transitions between consecutive sign photos so that the sequence is easy to follow.
+3. **Smooth transitions** <br />
+As a Deaf signer, I want smooth transitions between consecutive sign photos so that the sequence is easy to follow.
 
-4. **Unknown word detection & prompt** <br />
-As a user, I want the app to flag any word not found in the library and prompt me to add it so that the phrase can still be completed.
+4. **Missing word detection & prompt** <br />
+As a user, I want the app to detect missing words prompt add entry so that the sequence can still be completed.
 
-4. **Add word–sign pair** (capture flow) <br />
-As a user, I want to create a new word–sign pair by taking a photo of myself signing the word so that it’s available immediately.
+4. **Add sign entry** <br />
+As a user, I want to capture image of the sign and save entry so the new sign entry is available immediately.
 
-5. **Replay & granular controls** <br />
-As a Deaf signer, I want play/pause, previous/next word, and “replay current word” so that I can review unclear parts.
+5. **Playback controls** <br />
+As a Deaf signer, I want play/pause, previous/next word, and replay current so I can review unclear parts.
 
-6. **Library management** <br />
-As a user, I want to browse, search, edit, and delete my word–sign pairs so that I can keep the library clean.
+6. **Sign library management** <br />
+As a user, I want to search, edit, and delete sign entries so that I can keep the sign library clean.
 
 9. **Privacy & local storage** <br />
-As a privacy-conscious user, I want my audio and sign photos stored locally by default with a one-tap “Clear data” so that my content stays private.
+As a privacy-conscious user, I want my audio and sign photos stored locally by default with a one-tap clear data action so my content stays private.
 
 10. **Clear error guidance** <br />
-As a user, I want helpful messages when mic/camera permissions are denied or noise/blur is detected so that I know how to fix it.
+As a user, I want helpful error messages when permissions are denied or noise/blur is detection triggers so I know how to fix it.
 
 #### Quality Attributes & External Constraints
 
@@ -113,12 +113,19 @@ As a user, I want helpful messages when mic/camera permissions are denied or noi
 
 #### Glossary (Abbott’s Technique)
 
-*TODO: Define key terms and concepts used in your project. Clarify domain-specific language or abbreviations.*
-
 | Terms    | Definition      |
-| ------------- | ------------- |
-| example: Transaction | A transaction is when money moves out of one account in exchange for a product or service. |
-| ... | ... |
+| ------------- | ------------- | 
+| User | Any person using Papaya. Is either a hearing user or a deaf signer |
+| Hearing User | Person who speaks into Papaya. Creates a spoken statement. | 
+| Deaf Signer | A deaf or hard-of-hearing person who reads the sign sequence. |
+| Spoken Statement | A short, recorded segment of speech recorded by the hearing user. Becomes a transcript. | 
+| Transcript | The text produced from the spoken statement. Used to build a sign sequence from the sign librry and may reveal missing signs. |
+| Sign Photo | Image showing a sign. Included in a sign entry and displayed within a sign sequence. |
+| Sign Entry | A stored word-sign pair kept in the sign library and referenced by sign sequences. | 
+| Sign Library | Collection of sign entries on the device. Supplies entries to build sign sequence and accepts new sign entries. |
+| Sign Sequence | Ordered sequence of sign photos. Built from a transcript via the sign library and viewed by the deaf signer. | 
+| Missing Word | Word in the transcript without a matching sign entry. Triggers a prompt to add one. | 
+| Prompt | Message asking to add a sign. Leads to capturing a sign photo to create sign entry. | 
 
 #### Analysis Object Model
 
