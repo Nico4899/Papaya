@@ -129,14 +129,7 @@ As a user, I want helpful error messages when permissions are denied or noise/bl
 
 #### Analysis Object Model
 
-*TODO: Add an analysis object model diagram showing relationships between key entities in your app.*
-
-* **Instructions:** Create with [apollon](https://apollon.ase.cit.tum.de), [draw.io](https://draw.io) or alternatives, export as an **image** and insert it directly (no links, **no SVG**).
-
-Inserting an image in Markdown:
-``` 
-![Alt text](image path)
-``` 
+![Analysis object model](./images/UMLClassDiagram-2.png)
 
 ### Architecture
 
