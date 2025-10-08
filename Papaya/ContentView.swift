@@ -16,11 +16,34 @@ struct ContentView: View {
                 .font(.title2)
                 .bold()
 
-            Text(speechRecognizer.recognizedText)
-                .padding()
-                .frame(minHeight: 50)
-
             Spacer()
+
+            if !speechRecognizer.recognizedText.isEmpty {
+                ZStack(alignment: .topTrailing) {
+                    ScrollView {
+                        Text(speechRecognizer.recognizedText)
+                            .padding(12)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    .frame(maxHeight: 250)
+                    .background(Color(.systemGray6))
+                    .cornerRadius(12)
+
+                    Button(action: {
+                        speechRecognizer.reset()
+                    }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.title2)
+                            .foregroundStyle(.gray)
+                    }
+                    .padding(8)
+                }
+                .padding(.horizontal)
+            }
+
+            if speechRecognizer.recognizedText.isEmpty {
+                Spacer()
+            }
 
             MicHoldButton(
                 isRecording: speechRecognizer.isRecording,
@@ -35,8 +58,7 @@ struct ContentView: View {
         }
         .padding()
         .navigationTitle("Papaya")
-        // The animation is now tied to the recognizer's state.
-        .animation(.default, value: speechRecognizer.isRecording)
+        .animation(.spring(), value: speechRecognizer.recognizedText.isEmpty)
     }
 }
 

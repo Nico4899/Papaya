@@ -19,12 +19,14 @@ class SpeechRecognizer: ObservableObject {
     @Published var recognizedText = ""
 
     func startRecording() {
+        reset()
+        
         guard let speechRecognizer = speechRecognizer, speechRecognizer.isAvailable else {
+            print("Speech recognizer is not available")
             return
         }
 
         recognitionRequest = SFSpeechAudioBufferRecognitionRequest()
-
         guard let recognitionRequest = recognitionRequest else {
             fatalError("Unable to create a recognition request")
         }
@@ -57,7 +59,12 @@ class SpeechRecognizer: ObservableObject {
         audioEngine.stop()
         audioEngine.inputNode.removeTap(onBus: 0)
         recognitionRequest?.endAudio()
-        recognitionTask?.cancel()
         isRecording = false
+    }
+    
+    func reset() {
+        DispatchQueue.main.async {
+            self.recognizedText = ""
+        }
     }
 }
