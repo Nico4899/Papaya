@@ -22,7 +22,7 @@ struct WelcomeView: View {
                 .foregroundStyle(.secondary)
 
             NavigationLink {
-                TranslatorContainerView()
+                ContentView()
             } label: {
                 Text("Get Started")
                     .frame(maxWidth: .infinity)
@@ -31,7 +31,6 @@ struct WelcomeView: View {
             .padding(.top, 10)
         }
         .padding()
-        .navigationTitle("Welcome")
         .navigationBarTitleDisplayMode(.inline)
     }
 }
