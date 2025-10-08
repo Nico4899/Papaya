@@ -21,13 +21,16 @@ struct ContentView: View {
             if !speechRecognizer.recognizedText.isEmpty {
                 ZStack(alignment: .topTrailing) {
                     ScrollView {
-                        Text(speechRecognizer.recognizedText)
-                            .padding(12)
-                            .frame(maxWidth: .infinity, alignment: .leading)
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text(speechRecognizer.recognizedText)
+                                .font(.body)
+                                .padding()
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .background(Color.gray.opacity(0.1))
+                                .cornerRadius(10)
+                        }
                     }
-                    .frame(maxHeight: 250)
-                    .background(Color(.systemGray6))
-                    .cornerRadius(12)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
 
                     Button(action: {
                         speechRecognizer.reset()
@@ -42,7 +45,10 @@ struct ContentView: View {
             }
 
             if speechRecognizer.recognizedText.isEmpty {
-                Spacer()
+                Text("Tap the microphone to start recording...")
+                    .font(.body)
+                    .foregroundColor(.secondary)
+                    .padding()
             }
 
             MicHoldButton(
