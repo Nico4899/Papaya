@@ -22,8 +22,6 @@ struct MicHoldButton: View {
             )
             .onLongPressGesture(minimumDuration: .infinity,
                                 pressing: onPressChanged) { }
-            .accessibilityLabel(isRecording ? "Recording…" : "Hold to record")
-            .accessibilityAddTraits(.isButton)
     }
 }
 

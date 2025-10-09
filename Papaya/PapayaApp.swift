@@ -15,5 +15,6 @@ struct PapayaApp: App {
                 WelcomeView()
             }
         }
+        .modelContainer(for: SignWord.self)
     }
 }
