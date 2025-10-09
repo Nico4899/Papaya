@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ContentView: View {
+struct TranslatorView: View {
     @StateObject private var speechRecognizer = SpeechRecognizer()
 
     var body: some View {
@@ -42,13 +42,13 @@ struct ContentView: View {
                     .padding(8)
                 }
                 .padding(.horizontal)
-            }
-
-            if speechRecognizer.recognizedText.isEmpty {
-                Text("Tap the microphone to start recording...")
-                    .font(.body)
-                    .foregroundColor(.secondary)
-                    .padding()
+            } else {
+                if !speechRecognizer.isRecording {
+                    Text("Press and hold the button to start recording.")
+                        .font(.body)
+                        .foregroundColor(.secondary)
+                        .padding()
+                }
             }
 
             MicHoldButton(
@@ -69,5 +69,5 @@ struct ContentView: View {
 }
 
 #Preview {
-    NavigationStack { ContentView() }
+    NavigationStack { TranslatorView() }
 }

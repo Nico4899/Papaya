@@ -22,7 +22,7 @@ struct WelcomeView: View {
                 .foregroundStyle(.secondary)
 
             NavigationLink {
-                ContentView()
+                TranslatorView()
             } label: {
                 Text("Get Started")
                     .frame(maxWidth: .infinity)
