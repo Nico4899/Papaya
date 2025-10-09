@@ -135,14 +135,9 @@ As a user, I want helpful error messages when permissions are denied or noise/bl
 
 #### Subsystem Decomposition
 
-*TODO: Break down your app into its main subsystems (e.g., UI layer, networking, data/persistence, domain/logic, feature modules). Describe responsibilities, main data flows, and key dependencies. A simple diagram is encouraged.*
+![Subsystem decomposition](./images/UML_Subsystem_Decomposition.png)
 
-* Subsystem A — responsibilities, key types, inbound/outbound data
-* Subsystem B — ...
-* ...
+* UI/Frontend — Everything the user can view and interact with.
+* Translation — The logic for transcribing speech-to-text and translating the text to sign language.
+* Sign Library Management System - Responsible for storing and retrieving sign entries for the translating, which can be accessed and updated by the user.
 
----
-
-*Replace placeholders and keep this document current. It’s both your planning guide and part of your final deliverable.*
-
-Happy coding!
