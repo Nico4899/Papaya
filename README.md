@@ -135,7 +135,7 @@ As a user, I want helpful error messages when permissions are denied or noise/bl
 
 #### Subsystem Decomposition
 
-![Subsystem decomposition](./images/UML_Component_Diagram.png)
+![Subsystem decomposition](./images/UML_Subsystem_Decomposition.png)
 
 * UI/Frontend — Everything the user can view and interact with.
 * Translation — The logic for transcribing speech-to-text and translating the text to sign language.
