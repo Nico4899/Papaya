@@ -9,14 +9,15 @@ import SwiftUI
 import Speech
 import AVFoundation
 
+@Observable
 class SpeechRecognizer: ObservableObject {
     private let speechRecognizer = SFSpeechRecognizer(locale: Locale(identifier: "en-US"))
     private var recognitionRequest: SFSpeechAudioBufferRecognitionRequest?
     private var recognitionTask: SFSpeechRecognitionTask?
     private let audioEngine = AVAudioEngine()
 
-    @Published var isRecording = false
-    @Published var recognizedText = ""
+    var isRecording = false
+    var recognizedText = ""
 
     func startRecording() {
         reset()
