@@ -19,25 +19,25 @@ struct TranscriptView: View {
     }
 
     var body: some View {
-        ZStack(alignment: .topTrailing) {
-            ScrollView {
-                styledText()
-                    .font(.body)
-                    .padding()
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color.gray.opacity(0.1))
-                    .cornerRadius(10)
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-
-            Button(action: onReset) {
-                Image(systemName: "xmark.circle.fill")
-                    .font(.title2)
-                    .foregroundStyle(.gray)
-            }.padding(8)
-        }
-        .padding(.horizontal)
-    }
+           ScrollView {
+               styledText()
+                   .padding(.horizontal)
+                   .padding(.vertical, 12)
+                   .frame(maxWidth: .infinity, alignment: .leading)
+                   .background(Color(.secondarySystemBackground))
+                   .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                   .overlay(alignment: .topTrailing) {
+                       Button(action: onReset) {
+                           Image(systemName: "xmark.circle.fill")
+                               .font(.title2)
+                       }
+                       .foregroundStyle(.secondary)
+                       .padding(8)
+                   }
+           }
+           .frame(maxHeight: .infinity)
+           .padding(.horizontal)
+       }
     
     private func styledText() -> Text {
         let words = text.components(separatedBy: .whitespacesAndNewlines)

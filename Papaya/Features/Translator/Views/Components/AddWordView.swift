@@ -22,14 +22,16 @@ struct AddWordView: View {
             Button("Add", action: onAdd)
                 .buttonStyle(.borderedProminent)
             
-            Text(currentWord)
-                .font(.headline)
-                .bold()
-                .frame(maxWidth: .infinity, alignment: .center)
+            Spacer()
             
             Button(action: onPrevious) {
                 Image(systemName: "arrow.left")
             }.disabled(!canGoPrevious)
+            
+            Text(currentWord)
+                .font(.headline)
+                .bold()
+                .frame(maxWidth: .infinity, alignment: .center)
             
             Button(action: onNext) {
                 Image(systemName: "arrow.right")

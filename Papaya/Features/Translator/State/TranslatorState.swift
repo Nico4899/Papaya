@@ -12,12 +12,17 @@ import SwiftData
 class TranslatorState {
     // MARK: - Dependencies
     private var speechRecognizer = SpeechRecognizer()
+    private let videoService = SignVideoAPIService()
     var modelContext: ModelContext?
 
     // MARK: - Feature State
     var recognizedText: String = ""
     var unknownWords: [String] = []
     var selectedUnknownWordIndex: Int = 0
+    
+    var videoPickerWord: IdentifiableString?
+    var fetchedVideoURL: URL?
+    var isFetchingVideo = false
 
     init() {
         speechRecognizer.onTranscriptUpdate = { [weak self] newText in
@@ -101,6 +106,47 @@ class TranslatorState {
             selectedUnknownWordIndex = 0
         }
     }
+    
+    func presentVideoPicker() {
+        self.videoPickerWord = IdentifiableString(value: currentUnknownWord)
+    }
+
+    // This new async function handles the logic for fetching the video.
+    @MainActor
+    func fetchSignVideo() async {
+        guard let word = videoPickerWord else {
+            return
+        }
+        
+        isFetchingVideo = true
+        fetchedVideoURL = nil
+        
+        fetchedVideoURL = await videoService.fetchVideoURL(for: word.value)
+        
+        if fetchedVideoURL == nil {
+            print("Failed to fetch video URL for word: \(word.value)")
+        }
+        
+        isFetchingVideo = false
+    }
+
+    func confirmAddWord() {
+        let wordToAdd = currentUnknownWord
+        add(word: wordToAdd)
+        
+        unknownWords.removeAll { $0.lowercased() == wordToAdd.lowercased() }
+        if selectedUnknownWordIndex >= unknownWords.count {
+            selectedUnknownWordIndex = max(0, unknownWords.count - 1)
+        }
+        
+        dismissVideoPicker()
+    }
+    
+    func dismissVideoPicker() {
+        videoPickerWord = nil
+        fetchedVideoURL = nil
+        isFetchingVideo = false
+    }
 
     func add(word: String) {
         guard let context = modelContext else {
@@ -112,15 +158,5 @@ class TranslatorState {
         }
         let newWord = SignWord(text: cleanedWord)
         context.insert(newWord)
-    }
-
-    func addDefaultWordsIfNecessary(currentWords: [SignWord]) {
-        guard currentWords.isEmpty else {
-            return
-        }
-        let defaultWords = ["hello", "world", "goodbye", "weather", "sport"]
-        for word in defaultWords {
-            add(word: word)
-        }
     }
 }

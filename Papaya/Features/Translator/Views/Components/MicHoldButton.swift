@@ -10,6 +10,8 @@ import SwiftUI
 struct MicHoldButton: View {
     let isRecording: Bool
     let onPressChanged: (Bool) -> Void
+    
+    @State private var isPressed = false
 
     var body: some View {
         Circle()
@@ -17,11 +19,17 @@ struct MicHoldButton: View {
             .frame(width: 72, height: 72)
             .overlay(
                 Image(systemName: isRecording ? "waveform" : "mic.fill")
-                    .font(.title2)
+                    .font(.title)
                     .foregroundStyle(.white)
             )
+            .shadow(color: .black.opacity(0.2), radius: 10, y: 5)
+            .scaleEffect(isPressed ? 1.1 : 1.0)
+            .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isPressed)
             .onLongPressGesture(minimumDuration: .infinity,
-                                pressing: onPressChanged) { }
+                                pressing: { pressing in
+                self.isPressed = pressing
+                onPressChanged(pressing)
+            }, perform: {})
     }
 }
 
