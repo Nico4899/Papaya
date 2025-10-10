@@ -13,7 +13,6 @@ class TranslatorState {
     // MARK: - Dependencies
     private var speechRecognizer = SpeechRecognizer()
     private let videoService = SignVideoAPIService()
-    var modelContext: ModelContext?
 
     // MARK: - Feature State
     var recognizedText: String = ""
@@ -57,16 +56,6 @@ class TranslatorState {
         self.selectedUnknownWordIndex = 0
     }
     
-    func addCurrentWord() {
-        let wordToAdd = currentUnknownWord
-        add(word: wordToAdd)
-        
-        unknownWords.removeAll { $0.lowercased() == wordToAdd.lowercased() }
-        if selectedUnknownWordIndex >= unknownWords.count {
-            selectedUnknownWordIndex = max(0, unknownWords.count - 1)
-        }
-    }
-    
     func skipUnknownWords() {
         unknownWords.removeAll()
     }
@@ -81,10 +70,6 @@ class TranslatorState {
         if selectedUnknownWordIndex > 0 {
             selectedUnknownWordIndex -= 1
         }
-    }
-    
-    func textDidChange() {
-        self.recognizedText = speechRecognizer.recognizedText
     }
     
     // MARK: - Data Logic
@@ -111,7 +96,6 @@ class TranslatorState {
         self.videoPickerWord = IdentifiableString(value: currentUnknownWord)
     }
 
-    // This new async function handles the logic for fetching the video.
     @MainActor
     func fetchSignVideo() async {
         guard let word = videoPickerWord else {
@@ -130,9 +114,9 @@ class TranslatorState {
         isFetchingVideo = false
     }
 
-    func confirmAddWord() {
+    func confirmAddWord(context: ModelContext) {
         let wordToAdd = currentUnknownWord
-        add(word: wordToAdd)
+        add(word: wordToAdd, to: context) // Pass the context down.
         
         unknownWords.removeAll { $0.lowercased() == wordToAdd.lowercased() }
         if selectedUnknownWordIndex >= unknownWords.count {
@@ -148,14 +132,10 @@ class TranslatorState {
         isFetchingVideo = false
     }
 
-    func add(word: String) {
-        guard let context = modelContext else {
-            return
-        }
+    private func add(word: String, to context: ModelContext) {
         let cleanedWord = word.trimmingCharacters(in: .punctuationCharacters).lowercased()
-        guard !cleanedWord.isEmpty else {
-            return
-        }
+        guard !cleanedWord.isEmpty else { return }
+        
         let newWord = SignWord(text: cleanedWord)
         context.insert(newWord)
     }

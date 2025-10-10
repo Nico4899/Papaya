@@ -66,9 +66,6 @@ struct TranslatorContainerView: View {
         .navigationBarTitleDisplayMode(.inline)
         .animation(.spring(), value: state.recognizedText.isEmpty)
         .animation(.spring(), value: state.unknownWords.isEmpty)
-        .onAppear {
-            state.modelContext = modelContext
-        }
         .onChange(of: state.recognizedText) {
             state.updateUnknownWords(knownWords: signWordSet)
         }
@@ -80,7 +77,7 @@ struct TranslatorContainerView: View {
                 word: item.value,
                 videoURL: state.fetchedVideoURL,
                 isLoading: state.isFetchingVideo,
-                onConfirm: state.confirmAddWord,
+                onConfirm: { state.confirmAddWord(context: modelContext) },
                 onCancel: state.dismissVideoPicker
             )
             .onAppear {
