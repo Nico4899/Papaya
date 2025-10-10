@@ -6,5 +6,3 @@
 //
 
 // TODO: It tracks which sign is currently showing, whether the sequence is playing or paused, and handles the logic for moving to the next or previous sign.
-
-

@@ -31,7 +31,9 @@ class TranslatorState {
     }
     
     var currentUnknownWord: String {
-        guard unknownWords.indices.contains(selectedUnknownWordIndex) else { return "" }
+        guard unknownWords.indices.contains(selectedUnknownWordIndex) else {
+            return ""
+        }
         return unknownWords[selectedUnknownWordIndex]
     }
 
@@ -101,15 +103,21 @@ class TranslatorState {
     }
 
     func add(word: String) {
-        guard let context = modelContext else { return }
+        guard let context = modelContext else {
+            return
+        }
         let cleanedWord = word.trimmingCharacters(in: .punctuationCharacters).lowercased()
-        guard !cleanedWord.isEmpty else { return }
+        guard !cleanedWord.isEmpty else {
+            return
+        }
         let newWord = SignWord(text: cleanedWord)
         context.insert(newWord)
     }
 
     func addDefaultWordsIfNecessary(currentWords: [SignWord]) {
-        guard currentWords.isEmpty else { return }
+        guard currentWords.isEmpty else {
+            return
+        }
         let defaultWords = ["hello", "world", "goodbye", "weather", "sport"]
         for word in defaultWords {
             add(word: word)
