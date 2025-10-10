@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 @main
 struct PapayaApp: App {
@@ -15,5 +16,6 @@ struct PapayaApp: App {
                 WelcomeView()
             }
         }
+        .modelContainer(for: SignWord.self)
     }
 }
