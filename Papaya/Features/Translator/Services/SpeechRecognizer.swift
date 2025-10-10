@@ -10,7 +10,7 @@ import Speech
 import AVFoundation
 
 @Observable
-class SpeechRecognizer: ObservableObject {
+class SpeechRecognizer {
     private let speechRecognizer = SFSpeechRecognizer(locale: Locale(identifier: "en-US"))
     private var recognitionRequest: SFSpeechAudioBufferRecognitionRequest?
     private var recognitionTask: SFSpeechRecognitionTask?
@@ -18,6 +18,7 @@ class SpeechRecognizer: ObservableObject {
 
     var isRecording = false
     var recognizedText = ""
+    var onTranscriptUpdate: ((String) -> Void)?
 
     func startRecording() {
         reset()
@@ -34,9 +35,9 @@ class SpeechRecognizer: ObservableObject {
 
         recognitionTask = speechRecognizer.recognitionTask(with: recognitionRequest) { result, _ in
             if let result = result {
-                DispatchQueue.main.async {
-                    self.recognizedText = result.bestTranscription.formattedString
-                }
+                let newText = result.bestTranscription.formattedString
+                self.recognizedText = newText
+                self.onTranscriptUpdate?(newText)
             }
         }
 
@@ -64,8 +65,6 @@ class SpeechRecognizer: ObservableObject {
     }
     
     func reset() {
-        DispatchQueue.main.async {
-            self.recognizedText = ""
-        }
+        self.recognizedText = ""
     }
 }

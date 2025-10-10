@@ -8,16 +8,20 @@
 import SwiftUI
 
 struct TranscriptView: View {
-    let recognizedText: String
+    let text: String
     let signWordSet: Set<String>
     let unknownWords: [String]
-    let selectedUnknownWordIndex: Int
-    let onClear: () -> Void
+    let selectedIndex: Int
+    let onReset: () -> Void
+    
+    private var selectedWord: String? {
+        unknownWords.indices.contains(selectedIndex) ? unknownWords[selectedIndex] : nil
+    }
 
     var body: some View {
         ZStack(alignment: .topTrailing) {
             ScrollView {
-                styledTranscript
+                styledText()
                     .font(.body)
                     .padding()
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -26,20 +30,17 @@ struct TranscriptView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-            Button(action: onClear) {
+            Button(action: onReset) {
                 Image(systemName: "xmark.circle.fill")
                     .font(.title2)
                     .foregroundStyle(.gray)
-            }
-            .padding(8)
+            }.padding(8)
         }
         .padding(.horizontal)
     }
     
-    private var styledTranscript: Text {
-        let words = recognizedText.components(separatedBy: .whitespacesAndNewlines)
-        let selectedWord = unknownWords.indices.contains(selectedUnknownWordIndex) ? unknownWords[selectedUnknownWordIndex] : nil
-
+    private func styledText() -> Text {
+        let words = text.components(separatedBy: .whitespacesAndNewlines)
         var finalAttributedString = AttributedString()
 
         for word in words {

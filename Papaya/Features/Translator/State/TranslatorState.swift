@@ -9,50 +9,48 @@ import SwiftUI
 import SwiftData
 
 @Observable
-final class TranslatorViewModel {
-    // MARK: - Properties
-    var speechRecognizer = SpeechRecognizer()
+class TranslatorState {
+    // MARK: - Dependencies
+    private var speechRecognizer = SpeechRecognizer()
+    var modelContext: ModelContext?
+
+    // MARK: - Feature State
+    var recognizedText: String = ""
     var unknownWords: [String] = []
     var selectedUnknownWordIndex: Int = 0
-    
-    private var signWordSet: Set<String> = []
-    private var modelContext: ModelContext
 
+    init() {
+        speechRecognizer.onTranscriptUpdate = { [weak self] newText in
+            self?.recognizedText = newText
+        }
+    }
+    
     // MARK: - Computed Properties
+    var isRecording: Bool {
+        speechRecognizer.isRecording
+    }
+    
     var currentUnknownWord: String {
         guard unknownWords.indices.contains(selectedUnknownWordIndex) else { return "" }
         return unknownWords[selectedUnknownWordIndex]
     }
 
-    // MARK: - Init
-    init(modelContext: ModelContext) {
-        self.modelContext = modelContext
-    }
-
-    // MARK: - Public Methods
-    func updateSignWords(_ words: [SignWord]) {
-        self.signWordSet = Set(words.map { $0.text.lowercased() })
-        if speechRecognizer.isRecording == false {
-             updateUnknownWords()
-        }
-    }
-    
-    func handleMicPress(_ isPressed: Bool) {
+    // MARK: - Public Methods (Intents)
+    func toggleRecording(isPressed: Bool) {
         if isPressed {
-            addDefaultWordsIfNecessary()
             speechRecognizer.startRecording()
         } else {
             speechRecognizer.stopRecording()
-            updateUnknownWords()
         }
     }
     
-    func clearTranscription() {
+    func resetTranscript() {
         speechRecognizer.reset()
-        updateUnknownWords()
+        self.unknownWords = []
+        self.selectedUnknownWordIndex = 0
     }
     
-    func addSelectedWord() {
+    func addCurrentWord() {
         let wordToAdd = currentUnknownWord
         add(word: wordToAdd)
         
@@ -60,21 +58,36 @@ final class TranslatorViewModel {
         if selectedUnknownWordIndex >= unknownWords.count {
             selectedUnknownWordIndex = max(0, unknownWords.count - 1)
         }
-        updateUnknownWords() // Refresh highlights
     }
     
     func skipUnknownWords() {
         unknownWords.removeAll()
     }
-
-    // MARK: - Private Methods
-    private func updateUnknownWords() {
-        let words = speechRecognizer.recognizedText.components(separatedBy: .whitespacesAndNewlines)
+    
+    func selectNextWord() {
+        if selectedUnknownWordIndex < unknownWords.count - 1 {
+            selectedUnknownWordIndex += 1
+        }
+    }
+    
+    func selectPreviousWord() {
+        if selectedUnknownWordIndex > 0 {
+            selectedUnknownWordIndex -= 1
+        }
+    }
+    
+    func textDidChange() {
+        self.recognizedText = speechRecognizer.recognizedText
+    }
+    
+    // MARK: - Data Logic
+    func updateUnknownWords(knownWords: Set<String>) {
+        let words = recognizedText.components(separatedBy: .whitespacesAndNewlines)
         var foundWords = Set<String>()
         
         let currentUnknown = words.compactMap { word -> String? in
             let cleanedWord = word.trimmingCharacters(in: .punctuationCharacters)
-            if !cleanedWord.isEmpty && !signWordSet.contains(cleanedWord.lowercased()) && !foundWords.contains(cleanedWord.lowercased()) {
+            if !cleanedWord.isEmpty && !knownWords.contains(cleanedWord.lowercased()) && !foundWords.contains(cleanedWord.lowercased()) {
                 foundWords.insert(cleanedWord.lowercased())
                 return cleanedWord
             }
@@ -87,19 +100,19 @@ final class TranslatorViewModel {
         }
     }
 
-    private func add(word: String) {
+    func add(word: String) {
+        guard let context = modelContext else { return }
         let cleanedWord = word.trimmingCharacters(in: .punctuationCharacters).lowercased()
         guard !cleanedWord.isEmpty else { return }
         let newWord = SignWord(text: cleanedWord)
-        modelContext.insert(newWord)
+        context.insert(newWord)
     }
 
-    private func addDefaultWordsIfNecessary() {
-        if signWordSet.isEmpty {
-            let defaultWords = ["hello", "world", "goodbye", "weather", "sport"]
-            for word in defaultWords {
-                add(word: word)
-            }
+    func addDefaultWordsIfNecessary(currentWords: [SignWord]) {
+        guard currentWords.isEmpty else { return }
+        let defaultWords = ["hello", "world", "goodbye", "weather", "sport"]
+        for word in defaultWords {
+            add(word: word)
         }
     }
 }

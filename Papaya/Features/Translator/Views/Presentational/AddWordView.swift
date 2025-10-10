@@ -9,13 +9,13 @@ import SwiftUI
 
 struct AddWordView: View {
     let currentWord: String
-    let isPreviousDisabled: Bool
-    let isNextDisabled: Bool
+    let canGoPrevious: Bool
+    let canGoNext: Bool
     
-    let onAdd: () -> Void
-    let onSkip: () -> Void
-    let onPrevious: () -> Void
-    let onNext: () -> Void
+    var onAdd: () -> Void
+    var onSkip: () -> Void
+    var onPrevious: () -> Void
+    var onNext: () -> Void
 
     var body: some View {
         HStack(spacing: 16) {
@@ -29,13 +29,11 @@ struct AddWordView: View {
             
             Button(action: onPrevious) {
                 Image(systemName: "arrow.left")
-            }
-            .disabled(isPreviousDisabled)
+            }.disabled(!canGoPrevious)
             
             Button(action: onNext) {
                 Image(systemName: "arrow.right")
-            }
-            .disabled(isNextDisabled)
+            }.disabled(!canGoNext)
             
             Spacer()
             
