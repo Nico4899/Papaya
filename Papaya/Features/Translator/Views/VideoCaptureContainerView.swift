@@ -14,22 +14,28 @@ struct VideoCaptureContainerView: View {
     var onSave: (URL) -> Void
     var onCancel: () -> Void
     
-    @State private var state = VideoCaptureState()
+    @Bindable var state = VideoCaptureState()
+    
+    // MARK: - State for Interactive Player
+    @State private var isReferencePlayerVisible = true
+    @State private var referencePlayerOffset = CGSize.zero
+    @State private var referencePlayerScale: CGFloat = 1.0
+    
+    // Temporary state for smooth gestures
+    @State private var tempDragOffset = CGSize.zero
+    @State private var tempMagnification: CGFloat = 1.0
     
     var body: some View {
         ZStack {
-            // Camera preview fills the background
             CameraView(session: state.cameraService.session)
                 .ignoresSafeArea()
 
-            // Main UI Overlay
             VStack {
                 Spacer()
                 controls
             }
             .padding()
 
-            // Countdown Overlay
             if state.capturePhase == .countingDown {
                 Text("\(state.countdown)")
                     .font(.system(size: 150, weight: .bold, design: .rounded))
@@ -38,12 +44,16 @@ struct VideoCaptureContainerView: View {
                     .transition(.opacity.combined(with: .scale))
             }
 
-            // Reference Video (PiP)
             if let url = referenceVideoURL, state.capturePhase != .review {
-                referenceVideoPlayer(url: url)
+                if isReferencePlayerVisible {
+                    interactiveReferencePlayer(url: url)
+                }
             }
+            
+            overlays
         }
         .animation(.spring(), value: state.capturePhase)
+        .animation(.spring(), value: isReferencePlayerVisible)
         .onDisappear(perform: state.reset)
     }
     
@@ -90,17 +100,87 @@ struct VideoCaptureContainerView: View {
         .background(.black.opacity(0.3))
     }
 
-    private func referenceVideoPlayer(url: URL) -> some View {
-        VideoPlayer(player: AVPlayer(url: url)) {
-            // No overlay content needed
+    private func interactiveReferencePlayer(url: URL) -> some View {
+        let combinedGesture = DragGesture()
+            .simultaneously(with: MagnificationGesture())
+            .onChanged { value in
+                if let drag = value.first {
+                    self.tempDragOffset = drag.translation
+                }
+                if let magnification = value.second {
+                    self.tempMagnification = magnification
+                }
+            }
+            .onEnded { value in
+                if let drag = value.first {
+                    self.referencePlayerOffset.width += drag.translation.width
+                    self.referencePlayerOffset.height += drag.translation.height
+                    self.tempDragOffset = .zero
+                }
+
+                if let magnification = value.second {
+                    self.referencePlayerScale *= magnification
+                    self.referencePlayerScale = max(0.5, min(self.referencePlayerScale, 2.0))
+                    self.tempMagnification = 1.0
+                }
+            }
+
+        return ZStack(alignment: .topTrailing) {
+            VideoPlayer(player: AVPlayer(url: url))
+            
+            Button {
+                isReferencePlayerVisible = false
+            } label: {
+                Image(systemName: "xmark.circle.fill")
+                    .font(.title2)
+                    .foregroundStyle(.white, .black.opacity(0.6))
+            }
+            .padding(8)
         }
-        .frame(width: 120, height: 213) // 9:16 aspect ratio
+        .aspectRatio(16 / 9, contentMode: .fit)
+        .frame(width: 150)
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: 16, style: .continuous)
                 .stroke(Color.white, lineWidth: 2)
         )
+        .scaleEffect(referencePlayerScale * tempMagnification)
+        .offset(x: referencePlayerOffset.width + tempDragOffset.width,
+                y: referencePlayerOffset.height + tempDragOffset.height)
+        .padding(.bottom, 120)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+        .gesture(combinedGesture)
+    }
+    
+    @ViewBuilder
+    private var overlays: some View {
+        VStack {
+            HStack {
+                Button(action: onCancel) {
+                    Image(systemName: "xmark")
+                        .font(.headline.bold())
+                        .foregroundStyle(.white)
+                        .padding(10)
+                        .background(.black.opacity(0.5))
+                        .clipShape(Circle())
+                }
+                Spacer()
+                
+                if !isReferencePlayerVisible && referenceVideoURL != nil && state.capturePhase != .review {
+                    Button {
+                        isReferencePlayerVisible = true
+                    } label: {
+                        Image(systemName: "video.fill")
+                            .font(.headline)
+                            .foregroundStyle(.white)
+                            .padding(12)
+                            .background(.black.opacity(0.5))
+                            .clipShape(Circle())
+                    }
+                }
+            }
+            Spacer()
+        }
         .padding()
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
     }
 }

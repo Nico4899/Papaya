@@ -8,7 +8,6 @@
 import SwiftUI
 import AVFoundation
 
-// A UIKit bridge to display the camera preview layer.
 struct CameraView: UIViewControllerRepresentable {
     let session: AVCaptureSession
 
@@ -18,7 +17,6 @@ struct CameraView: UIViewControllerRepresentable {
         previewLayer.videoGravity = .resizeAspectFill
         viewController.view.layer.addSublayer(previewLayer)
         
-        // Use a background thread to avoid blocking the main thread
         DispatchQueue.global(qos: .userInitiated).async {
             session.startRunning()
         }

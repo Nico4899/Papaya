@@ -35,7 +35,6 @@ struct TranslatorContainerView: View {
                         systemImage: "waveform",
                         description: Text("Press and hold the microphone to start recording.")
                     )
-                    Spacer()
                 }
             }
             
@@ -66,13 +65,6 @@ struct TranslatorContainerView: View {
         .padding(.vertical)
         .navigationTitle("Translator")
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            if !state.recognizedText.isEmpty {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("New Session", systemImage: "plus", action: state.resetTranscript)
-                }
-            }
-        }
         .animation(.spring(), value: state.recognizedText.isEmpty)
         .animation(.spring(), value: state.unknownWords.isEmpty)
         .onChange(of: state.recognizedText) {

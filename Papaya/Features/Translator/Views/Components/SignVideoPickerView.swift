@@ -22,16 +22,21 @@ struct SignVideoPickerView: View {
     
     // MARK: - Body
     var body: some View {
-        VStack(spacing: 24) {
-            Text("Add Sign for \"\(word)\"")
-                .font(.title2)
-                .bold()
-                .padding(.top)
+        VStack(spacing: 20) {
+            Capsule()
+                .fill(Color.secondary.opacity(0.2))
+                .frame(width: 40, height: 5)
+                .padding(.top, 8)
 
+            Text("Add Sign for \"\(word)\"")
+                .font(.title2.bold())
+                .multilineTextAlignment(.center)
+
+            // Video Player ZStack is the same as before
             ZStack {
                 RoundedRectangle(cornerRadius: 16, style: .continuous)
                     .fill(Color(.secondarySystemBackground))
-            
+                
                 if isLoading {
                     ProgressView()
                 } else if let player = player {
@@ -43,25 +48,26 @@ struct SignVideoPickerView: View {
             }
             .aspectRatio(16 / 9, contentMode: .fit)
 
-            HStack(spacing: 16) {
-                Button("Cancel", role: .cancel, action: onCancel)
-                    .buttonStyle(.bordered)
-                    .frame(maxWidth: .infinity)
-                
-                // New capture button
+            Spacer()
+            
+            VStack(spacing: 12) {
                 Button("Capture My Sign", systemImage: "camera.fill", action: onCapture)
-                    .buttonStyle(.bordered)
-                    .frame(maxWidth: .infinity)
-                
-                // Changed text for clarity
-                Button("Save From Web", systemImage: "checkmark", action: onConfirm)
                     .buttonStyle(.borderedProminent)
                     .frame(maxWidth: .infinity)
+                
+                Button("Save Web Video", systemImage: "icloud.and.arrow.down", action: onConfirm)
+                    .buttonStyle(.bordered)
+                    .frame(maxWidth: .infinity)
                     .disabled(isLoading || videoURL == nil)
+                
+                Button("Cancel", action: onCancel)
+                    .buttonStyle(.plain)
+                    .padding(.top, 8)
             }
             .font(.headline)
         }
         .padding(.horizontal)
+        .padding(.bottom)
         .onChange(of: videoURL) { _, newURL in
             if let url = newURL {
                 let newPlayer = AVPlayer(url: url)
@@ -77,7 +83,7 @@ struct SignVideoPickerView: View {
 #Preview("States") {
     let sampleURL = URL(string: "https://media.signbsl.com/videos/asl/aslsignbank/mp4/FIND-2916.mp4")
 
-    return VStack(spacing: 40) {
+    return VStack {
         // 1. Loading State
         SignVideoPickerView(
             word: "Loading",
