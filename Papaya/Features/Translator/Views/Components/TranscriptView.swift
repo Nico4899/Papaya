@@ -60,3 +60,14 @@ struct TranscriptView: View {
         return Text(finalAttributedString)
     }
 }
+
+#Preview {
+    TranscriptView(
+        text: "Hello brave new world",
+        signWordSet: ["hello", "world"],
+        unknownWords: ["brave", "new"],
+        selectedIndex: 0,
+        onReset: { print("Reset tapped") }
+    )
+    .padding()
+}

@@ -53,6 +53,7 @@ class TranslatorState {
     }
     
     func resetTranscript() {
+        self.recognizedText = ""
         speechRecognizer.reset()
         self.unknownWords = []
         self.selectedUnknownWordIndex = 0
@@ -118,7 +119,7 @@ class TranslatorState {
 
     func confirmAddWord(context: ModelContext) {
         let wordToAdd = currentUnknownWord
-        add(word: wordToAdd, to: context) // Pass the context down.
+        add(word: wordToAdd, to: context)
         
         unknownWords.removeAll { $0.lowercased() == wordToAdd.lowercased() }
         if selectedUnknownWordIndex >= unknownWords.count {
@@ -139,27 +140,21 @@ class TranslatorState {
             let hasPermission = await PermissionManager.requestCameraAccess()
             await MainActor.run {
                 if hasPermission {
-                    // Dismiss the picker before showing the capture view
                     self.videoPickerWord = nil
                     self.isShowingCaptureView = true
                 } else {
-                    // Handle permission denial (e.g., show an alert)
                     print("Camera permission denied.")
                 }
             }
         }
     }
 
-    // New method to handle saving the captured video
     func saveCapturedVideo(url: URL, for word: String, context: ModelContext) {
         let fileName = url.lastPathComponent
-        // Here you could move the file to a permanent location if needed,
-        // but the temp directory is fine for this example.
         
         let newWord = SignWord(text: word.lowercased(), videoFileName: fileName)
         context.insert(newWord)
         
-        // Clean up the UI state
         unknownWords.removeAll { $0.lowercased() == word.lowercased() }
         if selectedUnknownWordIndex >= unknownWords.count {
             selectedUnknownWordIndex = max(0, unknownWords.count - 1)
@@ -169,7 +164,9 @@ class TranslatorState {
 
     private func add(word: String, to context: ModelContext) {
         let cleanedWord = word.trimmingCharacters(in: .punctuationCharacters).lowercased()
-        guard !cleanedWord.isEmpty else { return }
+        guard !cleanedWord.isEmpty else {
+            return
+        }
         
         let newWord = SignWord(text: cleanedWord)
         context.insert(newWord)

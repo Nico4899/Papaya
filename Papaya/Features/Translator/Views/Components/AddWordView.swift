@@ -49,3 +49,16 @@ struct AddWordView: View {
         .transition(.move(edge: .bottom).combined(with: .opacity))
     }
 }
+
+#Preview {
+    AddWordView(
+        currentWord: "Example",
+        canGoPrevious: true,
+        canGoNext: true,
+        onAdd: {},
+        onSkip: {},
+        onPrevious: {},
+        onNext: {}
+    )
+    .padding()
+}

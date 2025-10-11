@@ -59,7 +59,6 @@ struct VideoCaptureContainerView: View {
             .buttonStyle(.borderedProminent)
             .tint(.red)
             .font(.headline)
-
         case .recording:
             Button("Stop Recording") {
                 state.stopRecording()
@@ -67,16 +66,14 @@ struct VideoCaptureContainerView: View {
             .buttonStyle(.bordered)
             .background(.ultraThinMaterial, in: Capsule())
             .font(.headline)
-            
         case .review:
             if let url = state.recordedVideoURL {
                 VideoPlayer(player: AVPlayer(url: url))
                     .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-                    .aspectRatio(9/16, contentMode: .fit)
+                    .aspectRatio(9 / 16, contentMode: .fit)
                     .frame(maxHeight: 400)
                     .overlay(alignment: .bottom) { reviewButtons(videoURL: url) }
             }
-
         case .countingDown:
             EmptyView()
         }

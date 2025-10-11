@@ -51,6 +51,8 @@ struct TranslatorContainerView: View {
                         onNext: state.selectNextWord
                     )
                 }
+                
+                Spacer()
 
                 MicHoldButton(
                     isRecording: state.isRecording,
@@ -64,6 +66,13 @@ struct TranslatorContainerView: View {
         .padding(.vertical)
         .navigationTitle("Translator")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            if !state.recognizedText.isEmpty {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("New Session", systemImage: "plus", action: state.resetTranscript)
+                }
+            }
+        }
         .animation(.spring(), value: state.recognizedText.isEmpty)
         .animation(.spring(), value: state.unknownWords.isEmpty)
         .onChange(of: state.recognizedText) {

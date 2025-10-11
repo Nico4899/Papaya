@@ -58,7 +58,6 @@ struct SignVideoPickerView: View {
                     .buttonStyle(.borderedProminent)
                     .frame(maxWidth: .infinity)
                     .disabled(isLoading || videoURL == nil)
-                
             }
             .font(.headline)
         }
@@ -73,4 +72,41 @@ struct SignVideoPickerView: View {
             }
         }
     }
+}
+
+#Preview("States") {
+    let sampleURL = URL(string: "https://media.signbsl.com/videos/asl/aslsignbank/mp4/FIND-2916.mp4")
+
+    return VStack(spacing: 40) {
+        // 1. Loading State
+        SignVideoPickerView(
+            word: "Loading",
+            videoURL: nil,
+            isLoading: true,
+            onConfirm: {},
+            onCapture: {},
+            onCancel: {}
+        )
+        
+        // 2. Video Found State
+        SignVideoPickerView(
+            word: "Found",
+            videoURL: sampleURL,
+            isLoading: false,
+            onConfirm: {},
+            onCapture: {},
+            onCancel: {}
+        )
+        
+        // 3. Not Found State
+        SignVideoPickerView(
+            word: "Not Found",
+            videoURL: nil,
+            isLoading: false,
+            onConfirm: {},
+            onCapture: {},
+            onCancel: {}
+        )
+    }
+    .padding()
 }
