@@ -41,15 +41,11 @@ class SpeechRecognizer {
             }
         }
 
-        let recordingFormat = AVAudioFormat(standardFormatWithSampleRate: 16000, channels: 1)
-        guard let recordingFormat = recordingFormat else {
-            print("Failed to create the required audio format.")
-            return
-        }
-        
-        audioEngine.inputNode.removeTap(onBus: 0)
-        audioEngine.inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { buffer, _ in
-            recognitionRequest.append(buffer)
+        let inputNode = audioEngine.inputNode
+        let recordingFormat = inputNode.outputFormat(forBus: 0)
+        inputNode.removeTap(onBus: 0)
+        inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { buffer, _ in
+            self.recognitionRequest?.append(buffer)
         }
 
         audioEngine.prepare()

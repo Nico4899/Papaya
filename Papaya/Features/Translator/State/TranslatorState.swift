@@ -22,6 +22,8 @@ class TranslatorState {
     var videoPickerWord: IdentifiableString?
     var fetchedVideoURL: URL?
     var isFetchingVideo = false
+    
+    var isShowingCaptureView = false
 
     init() {
         speechRecognizer.onTranscriptUpdate = { [weak self] newText in
@@ -130,6 +132,39 @@ class TranslatorState {
         videoPickerWord = nil
         fetchedVideoURL = nil
         isFetchingVideo = false
+    }
+    
+    func presentCaptureView() {
+        Task {
+            let hasPermission = await PermissionManager.requestCameraAccess()
+            await MainActor.run {
+                if hasPermission {
+                    // Dismiss the picker before showing the capture view
+                    self.videoPickerWord = nil
+                    self.isShowingCaptureView = true
+                } else {
+                    // Handle permission denial (e.g., show an alert)
+                    print("Camera permission denied.")
+                }
+            }
+        }
+    }
+
+    // New method to handle saving the captured video
+    func saveCapturedVideo(url: URL, for word: String, context: ModelContext) {
+        let fileName = url.lastPathComponent
+        // Here you could move the file to a permanent location if needed,
+        // but the temp directory is fine for this example.
+        
+        let newWord = SignWord(text: word.lowercased(), videoFileName: fileName)
+        context.insert(newWord)
+        
+        // Clean up the UI state
+        unknownWords.removeAll { $0.lowercased() == word.lowercased() }
+        if selectedUnknownWordIndex >= unknownWords.count {
+            selectedUnknownWordIndex = max(0, unknownWords.count - 1)
+        }
+        isShowingCaptureView = false
     }
 
     private func add(word: String, to context: ModelContext) {

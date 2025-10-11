@@ -78,6 +78,7 @@ struct TranslatorContainerView: View {
                 videoURL: state.fetchedVideoURL,
                 isLoading: state.isFetchingVideo,
                 onConfirm: { state.confirmAddWord(context: modelContext) },
+                onCapture: state.presentCaptureView,
                 onCancel: state.dismissVideoPicker
             )
             .onAppear {
@@ -86,6 +87,18 @@ struct TranslatorContainerView: View {
                 }
             }
             .presentationDetents([.medium, .large])
+        }
+        .fullScreenCover(isPresented: $state.isShowingCaptureView) {
+            VideoCaptureContainerView(
+                word: state.currentUnknownWord,
+                referenceVideoURL: state.fetchedVideoURL,
+                onSave: { url in
+                    state.saveCapturedVideo(url: url, for: state.currentUnknownWord, context: modelContext)
+                },
+                onCancel: {
+                    state.isShowingCaptureView = false
+                }
+            )
         }
     }
 }

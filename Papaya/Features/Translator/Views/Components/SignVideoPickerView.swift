@@ -15,13 +15,14 @@ struct SignVideoPickerView: View {
     let isLoading: Bool
     
     var onConfirm: () -> Void
+    var onCapture: () -> Void
     var onCancel: () -> Void
     
     @State private var player: AVPlayer?
     
     // MARK: - Body
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 24) {
             Text("Add Sign for \"\(word)\"")
                 .font(.title2)
                 .bold()
@@ -47,11 +48,19 @@ struct SignVideoPickerView: View {
                     .buttonStyle(.bordered)
                     .frame(maxWidth: .infinity)
                 
-                Button("Confirm & Add", action: onConfirm)
+                // New capture button
+                Button("Capture My Sign", systemImage: "camera.fill", action: onCapture)
+                    .buttonStyle(.bordered)
+                    .frame(maxWidth: .infinity)
+                
+                // Changed text for clarity
+                Button("Save From Web", systemImage: "checkmark", action: onConfirm)
                     .buttonStyle(.borderedProminent)
                     .frame(maxWidth: .infinity)
                     .disabled(isLoading || videoURL == nil)
+                
             }
+            .font(.headline)
         }
         .padding(.horizontal)
         .onChange(of: videoURL) { _, newURL in

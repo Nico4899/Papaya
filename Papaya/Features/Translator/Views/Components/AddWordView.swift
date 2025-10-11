@@ -19,8 +19,9 @@ struct AddWordView: View {
 
     var body: some View {
         HStack(spacing: 16) {
-            Button("Add", action: onAdd)
+            Button("Add", systemImage: "plus.circle.fill", action: onAdd)
                 .buttonStyle(.borderedProminent)
+                .font(.headline)
             
             Spacer()
             
