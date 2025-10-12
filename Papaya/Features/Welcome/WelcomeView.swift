@@ -31,6 +31,7 @@ struct WelcomeView: View {
             .padding(.top, 10)
         }
         .padding()
+        .navigationTitle("Home")
         .navigationBarTitleDisplayMode(.inline)
     }
 }

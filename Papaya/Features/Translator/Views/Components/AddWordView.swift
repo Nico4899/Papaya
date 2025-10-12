@@ -18,31 +18,58 @@ struct AddWordView: View {
     var onNext: () -> Void
 
     var body: some View {
-        HStack(spacing: 16) {
-            Button("Add", action: onAdd)
-                .buttonStyle(.borderedProminent)
+        VStack(spacing: 16) {
+            HStack {
+                Button(action: onPrevious) {
+                    Image(systemName: "chevron.left")
+                }
+                .disabled(!canGoPrevious)
+                
+                Spacer()
+                
+                Text(currentWord)
+                    .font(.title3.bold())
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+                
+                Spacer()
+                
+                Button(action: onNext) {
+                    Image(systemName: "chevron.right")
+                }
+                .disabled(!canGoNext)
+            }
+            .padding(.horizontal)
+            .frame(height: 40)
+            .background(Color(.secondarySystemBackground))
+            .clipShape(Capsule())
             
-            Text(currentWord)
-                .font(.headline)
-                .bold()
-                .frame(maxWidth: .infinity, alignment: .center)
-            
-            Button(action: onPrevious) {
-                Image(systemName: "arrow.left")
-            }.disabled(!canGoPrevious)
-            
-            Button(action: onNext) {
-                Image(systemName: "arrow.right")
-            }.disabled(!canGoNext)
-            
-            Spacer()
-            
-            Button("Skip", action: onSkip)
-                .buttonStyle(.bordered)
+            HStack {
+                Button("Learn & Capture", systemImage: "camera.fill", action: onAdd)
+                    .buttonStyle(.borderedProminent)
+                    .frame(maxWidth: .infinity)
+
+                Button("Skip All", systemImage: "xmark.circle", action: onSkip)
+                    .buttonStyle(.bordered)
+            }
+            .font(.headline)
         }
         .padding()
-        .background(Color(.systemGray6))
-        .cornerRadius(10)
+        .background(.regularMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
         .transition(.move(edge: .bottom).combined(with: .opacity))
     }
+}
+
+#Preview {
+    AddWordView(
+        currentWord: "Example",
+        canGoPrevious: true,
+        canGoNext: true,
+        onAdd: {},
+        onSkip: {},
+        onPrevious: {},
+        onNext: {}
+    )
+    .padding()
 }
