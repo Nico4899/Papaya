@@ -160,3 +160,13 @@ struct VideoCaptureContainerView: View {
         .padding()
     }
 }
+
+#Preview("Video Capture") {
+    VideoCaptureContainerView(
+        word: "hello",
+        referenceVideoURL: nil,
+        onSave: { _ in },
+        onCancel: {},
+        state: VideoCaptureState()
+    )
+}

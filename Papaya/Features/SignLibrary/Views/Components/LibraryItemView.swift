@@ -12,15 +12,29 @@ struct LibraryItemView: View {
     let item: LibraryItem
     let layout: SignLibraryState.LayoutStyle
     
+    var onTap: () -> Void
+    var onEdit: () -> Void = {}
+    var onDelete: () -> Void = {}
+    
     @State private var player: AVPlayer?
     
     var body: some View {
-        Group {
-            switch layout {
-            case .list: listView
-            case .grid: gridView
+        Button(action: onTap) {
+            Group {
+                switch layout {
+                case .list: listView
+                case .grid: gridView
+                }
+            }
+            // ✅ FIX: The context menu is attached to the button's content.
+            .contextMenu {
+                if !item.isRemote {
+                    Button("Edit Sign", systemImage: "pencil", action: onEdit)
+                    Button("Delete Sign", systemImage: "trash", role: .destructive, action: onDelete)
+                }
             }
         }
+        .buttonStyle(.plain) // Use .plain to allow for custom button content.
         .animation(.spring(), value: layout)
         .onChange(of: item, initial: true) { _, newItem in
             setupPlayer(for: newItem)
@@ -130,7 +144,21 @@ struct LibraryItemView: View {
         if let url = url {
             self.player = AVPlayer(url: url)
         } else {
-            self.player = nil // Ensure player is cleared if there's no URL.
+            self.player = nil
         }
     }
+}
+
+#Preview("Interactive Item") {
+    LibraryItemView(
+        item: LibraryItem(
+            word: "Hello",
+            source: .local(signWord: SignWord(text: "hello"))
+        ),
+        layout: .grid,
+        onTap: { print("Item tapped") },
+        onEdit: { print("Edit tapped") },
+        onDelete: { print("Delete tapped") }
+    )
+    .padding()
 }

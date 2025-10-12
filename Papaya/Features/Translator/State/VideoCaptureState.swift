@@ -9,7 +9,7 @@ import Foundation
 import AVFoundation
 
 @Observable
-class VideoCaptureState {
+final class VideoCaptureState {
     var cameraService = CameraService()
     
     var countdown = 3
