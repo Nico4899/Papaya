@@ -13,9 +13,14 @@ final class SignWord {
     @Attribute(.unique)
     var text: String
     
-    // TODO: store image path/asset id, createdAt, updatedAt, etc.
+    var videoFileName: String?
+    var createdAt: Date
+    var updatedAt: Date
 
-    init(text: String) {
+    init(text: String, videoFileName: String? = nil, createdAt: Date = .now, updatedAt: Date = .now) {
         self.text = text
+        self.videoFileName = videoFileName
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
     }
 }
