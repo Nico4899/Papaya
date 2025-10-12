@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 @Observable
 class SignLibraryState {
@@ -17,6 +18,8 @@ class SignLibraryState {
     var layout: LayoutStyle = .grid
     var displayItems: [LibraryItem] = []
     var selectedItemForPreview: LibraryItem?
+    
+    private var modelContext: ModelContext?
 
     // Loading states
     var isLoadingInitialContent = false
@@ -26,10 +29,21 @@ class SignLibraryState {
     private var initialLoadTask: Task<Void, Never>?
 
     enum LayoutStyle: String, CaseIterable { case list, grid }
+    
+    func setup(context: ModelContext) {
+        self.modelContext = context
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleDatabaseChange),
+            name: .NSManagedObjectContextObjectsDidChange,
+            object: context
+        )
+        onAppear()
+    }
 
     // Called when the view first appears or data changes
-    func onAppear(localWords: [SignWord]) {
-        guard searchText.isEmpty else {
+    func onAppear() {
+        guard searchText.isEmpty, let context = modelContext else {
             return
         }
         
@@ -37,18 +51,16 @@ class SignLibraryState {
         initialLoadTask = Task {
             await MainActor.run { isLoadingInitialContent = true }
             
-            // 1. Prepare local items. This is a non-mutable constant.
+            // The state owner now fetches its own data.
+            let localWords = fetchLocalWords(from: context)
             let localItems = localWords.map { LibraryItem(word: $0.text, source: .local(signWord: $0)) }
             
-            // 2. Fetch remote items into a separate variable.
             let remoteItems = await fetchRandomRemoteItems(excluding: localWords, count: 10)
-            
             guard !Task.isCancelled else {
                 await MainActor.run { isLoadingInitialContent = false }
                 return
             }
             
-            // 3. Safely combine the data and update the UI in a single MainActor block.
             await MainActor.run {
                 self.displayItems = (localItems + remoteItems).shuffled()
                 self.isLoadingInitialContent = false
@@ -57,15 +69,19 @@ class SignLibraryState {
     }
 
     // Called when search text changes
-    func onSearchChanged(localWords: [SignWord]) {
+    func onSearchChanged() {
+        guard let context = modelContext else {
+            return
+        }
         searchTask?.cancel()
         
         if searchText.isEmpty {
-            onAppear(localWords: localWords)
+            onAppear()
             return
         }
 
         searchTask = Task {
+            let localWords = fetchLocalWords(from: context)
             let scoredLocalResults = scoreAndSort(localWords: localWords, for: searchText)
             await MainActor.run { self.displayItems = scoredLocalResults }
             
@@ -76,6 +92,24 @@ class SignLibraryState {
             if !scoredLocalResults.contains(where: { $0.word.lowercased() == cleanedSearchText }) {
                 await fetchRemoteResult(for: cleanedSearchText)
             }
+        }
+    }
+    
+    private func fetchLocalWords(from context: ModelContext) -> [SignWord] {
+        let descriptor = FetchDescriptor<SignWord>(sortBy: [SortDescriptor(\.updatedAt, order: .reverse)])
+        do {
+            return try context.fetch(descriptor)
+        } catch {
+            print("Failed to fetch local words: \(error)")
+            return []
+        }
+    }
+    
+    // Listens for external changes (e.g., from the Translator view) and refreshes.
+    @objc private func handleDatabaseChange() {
+        // Only refresh if not actively searching.
+        if searchText.isEmpty {
+            onAppear()
         }
     }
     

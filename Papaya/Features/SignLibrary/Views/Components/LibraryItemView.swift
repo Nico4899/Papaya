@@ -22,7 +22,9 @@ struct LibraryItemView: View {
             }
         }
         .animation(.spring(), value: layout)
-        .onAppear(perform: setupPlayer)
+        .onChange(of: item, initial: true) { _, newItem in
+            setupPlayer(for: newItem)
+        }
     }
     
     // MARK: - Grid View
@@ -114,7 +116,7 @@ struct LibraryItemView: View {
         }
     }
     
-    private func setupPlayer() {
+    private func setupPlayer(for item: LibraryItem) {
         var url: URL?
         switch item.source {
         case .local(let signWord):
@@ -127,6 +129,8 @@ struct LibraryItemView: View {
         
         if let url = url {
             self.player = AVPlayer(url: url)
+        } else {
+            self.player = nil // Ensure player is cleared if there's no URL.
         }
     }
 }

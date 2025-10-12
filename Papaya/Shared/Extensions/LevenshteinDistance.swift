@@ -20,6 +20,6 @@ extension String {
             }
             last = cur
         }
-        return last.last!
+        return last.last ?? 0
     }
 }

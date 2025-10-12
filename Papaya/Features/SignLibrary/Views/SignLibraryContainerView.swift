@@ -10,7 +10,7 @@ import SwiftData
 
 struct SignLibraryContainerView: View {
     @State private var state = SignLibraryState()
-    @Query(sort: \SignWord.updatedAt, order: .reverse) private var signWords: [SignWord]
+    @Environment(\.modelContext) private var modelContext
     
     private var columns: [GridItem] = [ GridItem(.adaptive(minimum: 150), spacing: 16) ]
     
@@ -28,11 +28,11 @@ struct SignLibraryContainerView: View {
             .navigationTitle("Sign Library")
             .searchable(text: $state.searchText, prompt: "Search signs...")
             .toolbar { toolbarContent }
-            .task(id: signWords) { // ✅ FIX: Use .task for robust loading
-                state.onAppear(localWords: signWords)
+            .onAppear {
+                state.setup(context: modelContext)
             }
             .onChange(of: state.searchText) {
-                state.onSearchChanged(localWords: signWords)
+                state.onSearchChanged()
             }
             .sheet(item: $state.selectedItemForPreview) { item in
                 VideoPreviewView(item: item)
