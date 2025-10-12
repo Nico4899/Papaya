@@ -6,6 +6,7 @@
 //
 
 import AVFoundation
+import Speech // Import the Speech framework
 
 struct PermissionManager {
     static func requestCameraAccess() async -> Bool {

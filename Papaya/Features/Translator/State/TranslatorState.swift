@@ -23,6 +23,7 @@ class TranslatorState {
     var fetchedVideoURL: URL?
     var isFetchingVideo = false
     
+    var videoCaptureState = VideoCaptureState()
     var isShowingCaptureView = false
 
     init() {
@@ -107,31 +108,12 @@ class TranslatorState {
         
         isFetchingVideo = true
         fetchedVideoURL = nil
-        
         fetchedVideoURL = await videoService.fetchVideoURL(for: word.value)
         
         if fetchedVideoURL == nil {
             print("Failed to fetch video URL for word: \(word.value)")
         }
         
-        isFetchingVideo = false
-    }
-
-    func confirmAddWord(context: ModelContext) {
-        let wordToAdd = currentUnknownWord
-        add(word: wordToAdd, to: context)
-        
-        unknownWords.removeAll { $0.lowercased() == wordToAdd.lowercased() }
-        if selectedUnknownWordIndex >= unknownWords.count {
-            selectedUnknownWordIndex = max(0, unknownWords.count - 1)
-        }
-        
-        dismissVideoPicker()
-    }
-    
-    func dismissVideoPicker() {
-        videoPickerWord = nil
-        fetchedVideoURL = nil
         isFetchingVideo = false
     }
     
@@ -148,27 +130,45 @@ class TranslatorState {
             }
         }
     }
-
-    func saveCapturedVideo(url: URL, for word: String, context: ModelContext) {
-        let fileName = url.lastPathComponent
+    
+    func saveSignWord(for word: String, capturedVideoURL: URL? = nil, context: ModelContext) {
+        var finalVideoFileName: String?
         
-        let newWord = SignWord(text: word.lowercased(), videoFileName: fileName)
+        // If a captured video URL is provided, move it to permanent storage.
+        if let sourceURL = capturedVideoURL {
+            guard let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
+                print("Error: Could not find the documents directory.")
+                return
+            }
+            let fileName = sourceURL.lastPathComponent
+            let destinationURL = documentsDirectory.appendingPathComponent(fileName)
+
+            do {
+                try FileManager.default.moveItem(at: sourceURL, to: destinationURL)
+                finalVideoFileName = fileName
+            } catch {
+                print("Error moving video file: \(error.localizedDescription)")
+                // Don't proceed if the file operation fails.
+                return
+            }
+        }
+        
+        // Insert the new word into the database.
+        let newWord = SignWord(text: word.lowercased(), videoFileName: finalVideoFileName)
         context.insert(newWord)
         
+        // Clean up UI state.
         unknownWords.removeAll { $0.lowercased() == word.lowercased() }
         if selectedUnknownWordIndex >= unknownWords.count {
             selectedUnknownWordIndex = max(0, unknownWords.count - 1)
         }
         isShowingCaptureView = false
+        dismissVideoPicker()
     }
-
-    private func add(word: String, to context: ModelContext) {
-        let cleanedWord = word.trimmingCharacters(in: .punctuationCharacters).lowercased()
-        guard !cleanedWord.isEmpty else {
-            return
-        }
-        
-        let newWord = SignWord(text: cleanedWord)
-        context.insert(newWord)
+    
+    func dismissVideoPicker() {
+        videoPickerWord = nil
+        fetchedVideoURL = nil
+        isFetchingVideo = false
     }
 }

@@ -78,7 +78,7 @@ struct TranslatorContainerView: View {
                 word: item.value,
                 videoURL: state.fetchedVideoURL,
                 isLoading: state.isFetchingVideo,
-                onConfirm: { state.confirmAddWord(context: modelContext) },
+                onConfirm: { state.saveSignWord(for: item.value, context: modelContext) },
                 onCapture: state.presentCaptureView,
                 onCancel: state.dismissVideoPicker
             )
@@ -94,7 +94,7 @@ struct TranslatorContainerView: View {
                 word: state.currentUnknownWord,
                 referenceVideoURL: state.fetchedVideoURL,
                 onSave: { url in
-                    state.saveCapturedVideo(url: url, for: state.currentUnknownWord, context: modelContext)
+                    state.saveSignWord(for: state.currentUnknownWord, capturedVideoURL: url, context: modelContext)
                 },
                 onCancel: {
                     state.isShowingCaptureView = false

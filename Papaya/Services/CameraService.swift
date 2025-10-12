@@ -40,10 +40,10 @@ class CameraService: NSObject, AVCaptureFileOutputRecordingDelegate {
     }
 
     func startRecording() {
-        let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        let fileName = UUID().uuidString + ".mov"
-        let fileURL = documentsURL.appendingPathComponent(fileName)
-        output.startRecording(to: fileURL, recordingDelegate: self)
+        let tempURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString)
+            .appendingPathExtension("mov")
+        output.startRecording(to: tempURL, recordingDelegate: self)
     }
 
     func stopRecording() {
