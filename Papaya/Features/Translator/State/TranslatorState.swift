@@ -60,10 +60,6 @@ class TranslatorState {
         self.selectedUnknownWordIndex = 0
     }
     
-    func skipUnknownWords() {
-        unknownWords.removeAll()
-    }
-    
     func selectNextWord() {
         if selectedUnknownWordIndex < unknownWords.count - 1 {
             selectedUnknownWordIndex += 1
@@ -134,7 +130,6 @@ class TranslatorState {
     func saveSignWord(for word: String, capturedVideoURL: URL? = nil, context: ModelContext) {
         var finalVideoFileName: String?
         
-        // If a captured video URL is provided, move it to permanent storage.
         if let sourceURL = capturedVideoURL {
             guard let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
                 print("Error: Could not find the documents directory.")
@@ -148,20 +143,18 @@ class TranslatorState {
                 finalVideoFileName = fileName
             } catch {
                 print("Error moving video file: \(error.localizedDescription)")
-                // Don't proceed if the file operation fails.
                 return
             }
         }
         
-        // Insert the new word into the database.
         let newWord = SignWord(text: word.lowercased(), videoFileName: finalVideoFileName)
         context.insert(newWord)
         
-        // Clean up UI state.
         unknownWords.removeAll { $0.lowercased() == word.lowercased() }
         if selectedUnknownWordIndex >= unknownWords.count {
             selectedUnknownWordIndex = max(0, unknownWords.count - 1)
         }
+        
         isShowingCaptureView = false
         dismissVideoPicker()
     }

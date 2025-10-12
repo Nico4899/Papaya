@@ -45,7 +45,6 @@ struct TranslatorContainerView: View {
                         canGoPrevious: state.selectedUnknownWordIndex > 0,
                         canGoNext: state.selectedUnknownWordIndex < state.unknownWords.count - 1,
                         onAdd: state.presentVideoPicker,
-                        onSkip: state.skipUnknownWords,
                         onPrevious: state.selectPreviousWord,
                         onNext: state.selectNextWord
                     )
@@ -65,6 +64,13 @@ struct TranslatorContainerView: View {
         .padding(.vertical)
         .navigationTitle("Translator")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                NavigationLink(destination: SignLibraryContainerView()) {
+                    Image(systemName: "books.vertical.fill")
+                }
+            }
+        }
         .animation(.spring(), value: state.recognizedText.isEmpty)
         .animation(.spring(), value: state.unknownWords.isEmpty)
         .onChange(of: state.recognizedText) {
@@ -98,7 +104,8 @@ struct TranslatorContainerView: View {
                 },
                 onCancel: {
                     state.isShowingCaptureView = false
-                }
+                },
+                state: state.videoCaptureState
             )
         }
     }

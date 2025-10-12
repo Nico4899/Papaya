@@ -13,7 +13,6 @@ struct AddWordView: View {
     let canGoNext: Bool
     
     var onAdd: () -> Void
-    var onSkip: () -> Void
     var onPrevious: () -> Void
     var onNext: () -> Void
 
@@ -44,15 +43,10 @@ struct AddWordView: View {
             .background(Color(.secondarySystemBackground))
             .clipShape(Capsule())
             
-            HStack {
-                Button("Learn & Capture", systemImage: "camera.fill", action: onAdd)
-                    .buttonStyle(.borderedProminent)
-                    .frame(maxWidth: .infinity)
-
-                Button("Skip All", systemImage: "xmark.circle", action: onSkip)
-                    .buttonStyle(.bordered)
-            }
-            .font(.headline)
+            Button("Learn & Capture", systemImage: "camera.fill", action: onAdd)
+                .buttonStyle(.borderedProminent)
+                .frame(maxWidth: .infinity)
+                .font(.headline)
         }
         .padding()
         .background(.regularMaterial)
@@ -67,7 +61,6 @@ struct AddWordView: View {
         canGoPrevious: true,
         canGoNext: true,
         onAdd: {},
-        onSkip: {},
         onPrevious: {},
         onNext: {}
     )

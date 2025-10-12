@@ -15,7 +15,7 @@ struct VideoCaptureContainerView: View {
     var onSave: (URL) -> Void
     var onCancel: () -> Void
     
-    @State private var state = VideoCaptureState()
+    @Bindable var state: VideoCaptureState
     
     @State private var isReferencePlayerVisible = true
     
@@ -159,21 +159,4 @@ struct VideoCaptureContainerView: View {
         }
         .padding()
     }
-}
-
-#Preview {
-    struct PreviewWrapper: View {
-        @State private var state = VideoCaptureState()
-        
-        var body: some View {
-            VideoCaptureContainerView(
-                word: "hello",
-                referenceVideoURL: URL(string: "https://media.signbsl.com/videos/asl/aslsignbank/mp4/FIND-2916.mp4"),
-                onSave: { url in print("Save tapped for URL: \(url)") },
-                onCancel: { print("Cancel tapped") }
-            )
-        }
-    }
-    
-    return PreviewWrapper()
 }
