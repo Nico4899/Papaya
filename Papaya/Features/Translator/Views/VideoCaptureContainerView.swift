@@ -21,18 +21,15 @@ struct VideoCaptureContainerView: View {
     
     var body: some View {
         ZStack {
-            // Camera preview fills the background
             CameraView(session: state.cameraService.session)
                 .ignoresSafeArea()
 
-            // Main UI Overlay
             VStack {
                 Spacer()
                 controls
             }
             .padding()
 
-            // Countdown Overlay
             if state.capturePhase == .countingDown {
                 Text("\(state.countdown)")
                     .font(.system(size: 150, weight: .bold, design: .rounded))
@@ -41,7 +38,6 @@ struct VideoCaptureContainerView: View {
                     .transition(.opacity.combined(with: .scale))
             }
 
-            // Reference Video (PiP)
             if let url = referenceVideoURL, state.capturePhase != .review {
                 if isReferencePlayerVisible {
                     referenceVideoPlayer(url: url)
@@ -49,6 +45,10 @@ struct VideoCaptureContainerView: View {
             }
             
             overlays
+            
+            if state.capturePhase == .review, let url = state.recordedVideoURL {
+                reviewView(url: url)
+            }
         }
         .animation(.spring(), value: state.capturePhase)
         .animation(.spring(), value: isReferencePlayerVisible)
@@ -58,45 +58,51 @@ struct VideoCaptureContainerView: View {
     // MARK: - Subviews
     
     @ViewBuilder
-    private var controls: some View {
-        switch state.capturePhase {
-        case .idle:
-            Button("Start Recording") {
-                state.startCountdown()
-            }
-            .buttonStyle(.borderedProminent)
-            .tint(.red)
-            .font(.headline)
-        case .recording:
-            Button("Stop Recording") {
-                state.stopRecording()
-            }
-            .buttonStyle(.bordered)
-            .background(.ultraThinMaterial, in: Capsule())
-            .font(.headline)
-        case .review:
-            if let url = state.recordedVideoURL {
-                VideoPlayer(player: AVPlayer(url: url))
-                    .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-                    .aspectRatio(9 / 16, contentMode: .fit)
-                    .frame(maxHeight: 400)
-                    .overlay(alignment: .bottom) { reviewButtons(videoURL: url) }
-            }
-        case .countingDown:
-            EmptyView()
-        }
-    }
+   private var controls: some View {
+       switch state.capturePhase {
+       case .idle:
+           Button("Start Recording") {
+               isReferencePlayerVisible = false
+               state.startCountdown()
+           }
+           .buttonStyle(.borderedProminent)
+           .tint(.red)
+           .font(.headline)
+       case .recording:
+           Button("Stop Recording") { state.stopRecording() }
+               .buttonStyle(.bordered)
+               .background(.ultraThinMaterial, in: Capsule())
+               .font(.headline)
+       case .review, .countingDown:
+           EmptyView()
+       }
+   }
 
-    private func reviewButtons(videoURL: URL) -> some View {
-        HStack {
-            Button("Retake", systemImage: "arrow.counterclockwise", action: state.retake)
-            Spacer()
-            Button("Save", systemImage: "checkmark.circle.fill") { onSave(videoURL) }
-        }
-        .font(.title)
-        .padding()
-        .background(.black.opacity(0.3))
-    }
+   @ViewBuilder
+   private func reviewView(url: URL) -> some View {
+       VStack {
+           VideoPlayer(player: AVPlayer(url: url))
+               .ignoresSafeArea()
+
+           HStack(spacing: 16) {
+               Button("Retake", systemImage: "arrow.counterclockwise") {
+                   state.retake()
+               }
+               .buttonStyle(.bordered)
+               .frame(maxWidth: .infinity)
+               
+               Button("Save", systemImage: "checkmark") {
+                   onSave(url)
+               }
+               .buttonStyle(.borderedProminent)
+               .frame(maxWidth: .infinity)
+           }
+           .font(.headline)
+           .controlSize(.large)
+           .padding()
+           .background(.regularMaterial)
+       }
+   }
 
     private func referenceVideoPlayer(url: URL) -> some View {
         return ZStack(alignment: .topTrailing) {
@@ -156,14 +162,13 @@ struct VideoCaptureContainerView: View {
 }
 
 #Preview {
-    // A helper view is needed to manage the @State for the binding.
     struct PreviewWrapper: View {
         @State private var state = VideoCaptureState()
         
         var body: some View {
             VideoCaptureContainerView(
                 word: "hello",
-                referenceVideoURL: URL(string: "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"),
+                referenceVideoURL: URL(string: "https://media.signbsl.com/videos/asl/aslsignbank/mp4/FIND-2916.mp4"),
                 onSave: { url in print("Save tapped for URL: \(url)") },
                 onCancel: { print("Cancel tapped") }
             )
