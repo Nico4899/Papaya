@@ -8,7 +8,8 @@
 import OSLog
 
 extension Logger {
-    private static var subsystem = Bundle.main.bundleIdentifier!
+    private static let subsystem: String =
+            Bundle.main.bundleIdentifier ?? ProcessInfo.processInfo.processName
     
     static let ui = Logger(subsystem: subsystem, category: "UI")
     static let data = Logger(subsystem: subsystem, category: "Data")

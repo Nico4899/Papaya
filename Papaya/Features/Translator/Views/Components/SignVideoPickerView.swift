@@ -21,7 +21,7 @@ struct SignVideoPickerView: View {
     
     // Using a private state for the player encapsulates its logic within the view.
     @State private var player: AVPlayer?
-    @State private var networkError: String? = nil
+    @State private var networkError: String?
     
     // MARK: - Body
     var body: some View {
@@ -101,27 +101,37 @@ struct SignVideoPickerView: View {
     
     /// Updates the AVPlayer instance when the video URL changes.
     private func updatePlayer(with url: URL?) {
-        if let url {
-            let newPlayer = AVPlayer(url: url)
-            self.player = newPlayer
-            // Check if we can actually connect to the URL
-            let asset = AVURLAsset(url: url)
-            asset.loadValuesAsynchronously(forKeys: ["playable"]) {
-                var error: NSError? = nil
-                let status = asset.statusOfValue(forKey: "playable", error: &error)
-                DispatchQueue.main.async {
-                    if status == .failed || error != nil {
-                        self.networkError = "Could not load video. Please check your internet connection."
-                        Logger.data.error("Failed to load video asset: \(error?.localizedDescription ?? "Unknown error")")
-                        self.player = nil
-                    } else {
-                        self.networkError = nil
+        // Reset first
+        player = nil
+        networkError = nil
+
+        guard let url else { return }
+
+        let asset = AVURLAsset(url: url)
+
+        // Use AVFoundation's typed async property loading (iOS 16+)
+        Task {
+            do {
+                let isPlayable = try await asset.load(.isPlayable)
+
+                await MainActor.run {
+                    if isPlayable {
+                        let item = AVPlayerItem(asset: asset)
+                        let newPlayer = AVPlayer(playerItem: item)
+                        self.player = newPlayer
                         newPlayer.play()
+                    } else {
+                        self.networkError = "This video can't be played."
+                        Logger.data.error("Asset at \(url.absoluteString, privacy: .public) is not playable.")
                     }
                 }
+            } catch {
+                await MainActor.run {
+                    self.networkError = "Could not load video. Please check your internet connection."
+                    Logger.data.error("Failed to load asset: \(error.localizedDescription, privacy: .public)")
+                    self.player = nil
+                }
             }
-        } else {
-            self.player = nil
         }
     }
 }

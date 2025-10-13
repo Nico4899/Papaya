@@ -54,13 +54,13 @@ struct MicHoldButton: View {
         .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isPressed)
         // The `.sensoryFeedback` modifier is the modern way to add haptics.
         .sensoryFeedback(.impact(weight: .light), trigger: isPressed)
-        .onLongPressGesture(minimumDuration: .infinity,
+        .onLongPressGesture(
+            minimumDuration: .infinity,
             pressing: { pressing in
                 self.isPressed = pressing
-                onPressChanged(pressing) // Inform the parent view of the state change.
+                onPressChanged(pressing)
             },
             perform: {
-                // This closure is for when the press completes, which is not used here.
             }
         )
         .onAppear {
