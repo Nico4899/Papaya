@@ -21,12 +21,6 @@ struct AddWordView: View {
 
     var body: some View {
         VStack(spacing: 16) {
-            // A descriptive title guides the user on what to do.
-            Text("Words to Add")
-                .font(.footnote)
-                .fontWeight(.medium)
-                .foregroundStyle(.secondary)
-            
             // MARK: - Word Selection Carousel
             HStack(spacing: 12) {
                 // Button for navigating to the previous word.

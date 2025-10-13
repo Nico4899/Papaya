@@ -48,34 +48,36 @@ struct TranslatorContainerView: View {
             .ignoresSafeArea()
             
             VStack(spacing: 20) {
-                if !state.recognizedText.isEmpty {
-                    TranscriptView(
-                        text: state.recognizedText,
-                        signWordSet: signWordSet,
-                        unknownWords: state.unknownWords,
-                        selectedIndex: state.selectedUnknownWordIndex,
-                        onReset: {
-                            state.resetTranscript()
-                            playbackState.player.removeAllItems()
+                Group {
+                    if !state.recognizedText.isEmpty {
+                        if state.isShowingPlayback {
+                            SignPlaybackContainerView(state: playbackState)
+                                .transition(.asymmetric(insertion: .scale.combined(with: .opacity), removal: .opacity))
+                        } else {
+                            TranscriptView(
+                                text: state.recognizedText,
+                                signWordSet: Set(signWords.map { $0.text.lowercased() }),
+                                unknownWords: state.unknownWords,
+                                selectedIndex: state.selectedUnknownWordIndex,
+                                onReset: {
+                                    state.resetTranscript()
+                                    playbackState.player.removeAllItems()
+                                }
+                            )
                         }
-                    )
-                } else {
-                    Spacer()
-                    ContentUnavailableView(
-                        "Ready to Translate",
-                        systemImage: "waveform",
-                        description: Text("Press and hold the microphone to start recording.")
-                    )
-                    Spacer()
+                    } else {
+                        Spacer()
+                        ContentUnavailableView(
+                            "Ready to Translate",
+                            systemImage: "waveform",
+                            description: Text("Press and hold the microphone to start recording.")
+                        )
+                        Spacer()
+                    }
                 }
+                .frame(maxHeight: .infinity)
                 
-                if !playbackSignWords.isEmpty {
-                    SignPlaybackContainerView(state: playbackState)
-                        .frame(height: 320)
-                        .transition(.asymmetric(insertion: .scale.combined(with: .opacity), removal: .opacity))
-                }
-                
-                if !state.unknownWords.isEmpty {
+                if !state.unknownWords.isEmpty && !state.isShowingPlayback {
                     AddWordView(
                         currentWord: state.currentUnknownWord,
                         canGoPrevious: state.selectedUnknownWordIndex > 0,
@@ -108,13 +110,21 @@ struct TranslatorContainerView: View {
         .animation(.spring(), value: state.recognizedText.isEmpty)
         .animation(.spring(), value: state.unknownWords.isEmpty)
         .animation(.spring(), value: playbackSignWords.isEmpty)
-        .onChange(of: state.recognizedText) {
-            state.updateUnknownWords(knownWords: signWordSet)
+        .onChange(of: state.isRecording) { wasRecording, isRecordingNow in
+            if wasRecording && !isRecordingNow {
+                state.checkPlaybackEligibility()
+            }
         }
-        .onChange(of: signWords) {
-             state.updateUnknownWords(knownWords: signWordSet)
+        .onAppear {
+            // On first appearance, provide the state owner with the known words from the database.
+            state.updateKnownWords(from: signWords)
+        }
+        .onChange(of: signWords) { _, newWords in
+            // Keep the state owner updated if the database changes.
+            state.updateKnownWords(from: newWords)
         }
         .onChange(of: playbackSignWords) { _, newPlaybackWords in
+            // This remains necessary to configure the AVPlayer queue.
             playbackState.setup(with: newPlaybackWords)
         }
         .sheet(item: $state.videoPickerWord) { item in

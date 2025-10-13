@@ -5,12 +5,8 @@
 //  Created by Hans-Peter Fliegel on 08.10.25.
 //
 
-// MicHoldButton.swift
-
 import SwiftUI
 import OSLog
-// Lottie is a fantastic third-party library for adding high-quality animations.
-// You would add it via Swift Package Manager: https://github.com/airbnb/lottie-ios
 import Lottie
 
 struct MicHoldButton: View {

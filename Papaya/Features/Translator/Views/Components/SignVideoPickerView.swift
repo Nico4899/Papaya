@@ -105,7 +105,9 @@ struct SignVideoPickerView: View {
         player = nil
         networkError = nil
 
-        guard let url else { return }
+        guard let url else {
+            return
+        }
 
         let asset = AVURLAsset(url: url)
 
