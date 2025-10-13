@@ -39,8 +39,15 @@ struct TranslatorContainerView: View {
     }
 
     var body: some View {
-        VStack(spacing: 20) {
-            Group {
+        ZStack {
+            LinearGradient(
+                colors: [.papayaTeal.opacity(0.3), .clear],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
+            
+            VStack(spacing: 20) {
                 if !state.recognizedText.isEmpty {
                     TranscriptView(
                         text: state.recognizedText,
@@ -59,16 +66,15 @@ struct TranslatorContainerView: View {
                         systemImage: "waveform",
                         description: Text("Press and hold the microphone to start recording.")
                     )
+                    Spacer()
                 }
-            }
-            
-            if !playbackSignWords.isEmpty {
-                SignPlaybackContainerView(state: playbackState)
-                    .frame(height: 320)
-                    .transition(.asymmetric(insertion: .scale.combined(with: .opacity), removal: .opacity))
-            }
-            
-            VStack {
+                
+                if !playbackSignWords.isEmpty {
+                    SignPlaybackContainerView(state: playbackState)
+                        .frame(height: 320)
+                        .transition(.asymmetric(insertion: .scale.combined(with: .opacity), removal: .opacity))
+                }
+                
                 if !state.unknownWords.isEmpty {
                     AddWordView(
                         currentWord: state.currentUnknownWord,
@@ -80,18 +86,16 @@ struct TranslatorContainerView: View {
                     )
                 }
                 
-                Spacer()
-
                 MicHoldButton(
                     isRecording: state.isRecording,
                     onPressChanged: { isPressed in
                         state.toggleRecording(isPressed: isPressed)
                     }
                 )
+                .padding(.bottom)
             }
-            .padding(.horizontal)
+            .padding(.vertical)
         }
-        .padding(.vertical)
         .navigationTitle("Translator")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {

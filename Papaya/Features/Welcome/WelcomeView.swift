@@ -7,9 +7,6 @@
 
 import SwiftUI
 import OSLog
-// Lottie is a fantastic third-party library for adding high-quality animations.
-// This is where you would import it after adding it via Swift Package Manager.
-// import Lottie
 
 struct WelcomeView: View {
     var body: some View {
