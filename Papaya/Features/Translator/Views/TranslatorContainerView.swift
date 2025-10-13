@@ -10,11 +10,32 @@ import SwiftData
 
 struct TranslatorContainerView: View {
     @State private var state = TranslatorState()
+    @State private var playbackState = SignPlaybackState()
+    
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \SignWord.text) private var signWords: [SignWord]
     
     private var signWordSet: Set<String> {
         Set(signWords.map { $0.text.lowercased() })
+    }
+    
+    private var playbackSignWords: [SignWord] {
+        let transcriptWords = state.recognizedText
+            .lowercased()
+            .components(separatedBy: .whitespacesAndNewlines)
+            .compactMap { $0.trimmingCharacters(in: .punctuationCharacters) }
+            .filter { !$0.isEmpty }
+
+        let signWordMap = Dictionary(signWords.map { ($0.text, $0) }, uniquingKeysWith: { first, _ in first })
+        
+        var uniqueOrderedWords: [String] = []
+        var seenWords = Set<String>()
+        for word in transcriptWords where !seenWords.contains(word) {
+            uniqueOrderedWords.append(word)
+            seenWords.insert(word)
+        }
+        
+        return uniqueOrderedWords.compactMap { signWordMap[$0] }
     }
 
     var body: some View {
@@ -26,7 +47,10 @@ struct TranslatorContainerView: View {
                         signWordSet: signWordSet,
                         unknownWords: state.unknownWords,
                         selectedIndex: state.selectedUnknownWordIndex,
-                        onReset: state.resetTranscript
+                        onReset: {
+                            state.resetTranscript()
+                            playbackState.player.removeAllItems()
+                        }
                     )
                 } else {
                     Spacer()
@@ -36,6 +60,12 @@ struct TranslatorContainerView: View {
                         description: Text("Press and hold the microphone to start recording.")
                     )
                 }
+            }
+            
+            if !playbackSignWords.isEmpty {
+                SignPlaybackContainerView(state: playbackState)
+                    .frame(height: 320)
+                    .transition(.asymmetric(insertion: .scale.combined(with: .opacity), removal: .opacity))
             }
             
             VStack {
@@ -73,11 +103,15 @@ struct TranslatorContainerView: View {
         }
         .animation(.spring(), value: state.recognizedText.isEmpty)
         .animation(.spring(), value: state.unknownWords.isEmpty)
+        .animation(.spring(), value: playbackSignWords.isEmpty)
         .onChange(of: state.recognizedText) {
             state.updateUnknownWords(knownWords: signWordSet)
         }
         .onChange(of: signWords) {
              state.updateUnknownWords(knownWords: signWordSet)
+        }
+        .onChange(of: playbackSignWords) { _, newPlaybackWords in
+            playbackState.setup(with: newPlaybackWords)
         }
         .sheet(item: $state.videoPickerWord) { item in
             SignVideoPickerView(
