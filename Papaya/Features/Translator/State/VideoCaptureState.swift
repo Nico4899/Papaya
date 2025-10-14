@@ -7,9 +7,10 @@
 
 import Foundation
 import AVFoundation
+import Observation
 
 @Observable
-class VideoCaptureState {
+final class VideoCaptureState {
     var cameraService = CameraService()
     
     var countdown = 3
@@ -18,6 +19,15 @@ class VideoCaptureState {
     var showCamera = false
     var capturePhase: CapturePhase = .idle
     var recordedVideoURL: URL?
+    
+    var recordingStart: Date?
+    var isRecording: Bool { capturePhase == .recording }
+    var recordingDuration: TimeInterval {
+        guard let start = recordingStart else {
+            return 0
+        }
+        return Date().timeIntervalSince(start)
+    }
     
     enum CapturePhase {
         case idle, countingDown, recording, review
@@ -43,6 +53,7 @@ class VideoCaptureState {
     
     private func startRecording() {
         capturePhase = .recording
+        recordingStart = Date()
         cameraService.startRecording()
     }
     
@@ -56,6 +67,7 @@ class VideoCaptureState {
                     print("Error saving video: \(error?.localizedDescription ?? "Unknown error")")
                     self?.reset()
                 }
+                self?.recordingStart = nil
             }
         }
         cameraService.stopRecording()
@@ -63,6 +75,7 @@ class VideoCaptureState {
     
     func retake() {
         recordedVideoURL = nil
+        recordingStart = nil
         capturePhase = .idle
     }
     
@@ -70,6 +83,7 @@ class VideoCaptureState {
         countdownTimer?.invalidate()
         countdownTimer = nil
         recordedVideoURL = nil
+        recordingStart = nil
         capturePhase = .idle
     }
 }
