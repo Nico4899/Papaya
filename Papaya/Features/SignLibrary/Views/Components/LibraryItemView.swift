@@ -26,7 +26,6 @@ struct LibraryItemView: View {
                 case .grid: gridView
                 }
             }
-            // ✅ FIX: The context menu is attached to the button's content.
             .contextMenu {
                 if !item.isRemote {
                     Button("Edit Sign", systemImage: "pencil", action: onEdit)
@@ -34,7 +33,7 @@ struct LibraryItemView: View {
                 }
             }
         }
-        .buttonStyle(.plain) // Use .plain to allow for custom button content.
+        .buttonStyle(.plain)
         .animation(.spring(), value: layout)
         .onChange(of: item, initial: true) { _, newItem in
             setupPlayer(for: newItem)
@@ -98,7 +97,7 @@ struct LibraryItemView: View {
     private var sourceInfo: some View {
         switch item.source {
         case .local(let signWord):
-            Text(signWord.updatedAt, format: .relative(presentation: .named))
+            Text(signWord.updatedAt.formatted(.relative(presentation: .named)))
                 .foregroundStyle(.secondary)
         case .remote:
             HStack(spacing: 4) {
