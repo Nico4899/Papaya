@@ -216,14 +216,6 @@ class SignLibraryState {
         }
     }
     
-    // Listens for external changes (e.g., from the Translator view) and refreshes.
-    @objc private func handleDatabaseChange() {
-        // Only refresh if not actively searching.
-        if searchText.isEmpty {
-            onAppear()
-        }
-    }
-    
     private func scoreAndSort(localWords: [SignWord], for query: String) -> [LibraryItem] {
         let lowercasedQuery = query.lowercased()
         
