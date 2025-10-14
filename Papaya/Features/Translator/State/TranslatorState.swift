@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import OSLog
 
 @Observable
 class TranslatorState {
@@ -18,6 +19,7 @@ class TranslatorState {
     var recognizedText: String = ""
     var unknownWords: [String] = []
     var selectedUnknownWordIndex: Int = 0
+    var isShowingPlayback = false
     
     var videoPickerWord: IdentifiableString?
     var fetchedVideoURL: URL?
@@ -25,10 +27,13 @@ class TranslatorState {
     
     var videoCaptureState = VideoCaptureState()
     var isShowingCaptureView = false
+    
+    private var knownWords: Set<String> = []
 
     init() {
         speechRecognizer.onTranscriptUpdate = { [weak self] newText in
             self?.recognizedText = newText
+            self?.updateUnknownWords()
         }
     }
     
@@ -47,9 +52,20 @@ class TranslatorState {
     // MARK: - Public Methods (Intents)
     func toggleRecording(isPressed: Bool) {
         if isPressed {
+            isShowingPlayback = false
             speechRecognizer.startRecording()
         } else {
             speechRecognizer.stopRecording()
+        }
+    }
+    
+    func checkPlaybackEligibility() {
+        // Only show the player if the transcript is not empty AND there are no unknown words.
+        if !recognizedText.isEmpty && unknownWords.isEmpty {
+            isShowingPlayback = true
+            Logger.ui.info("All words recognized. Switching to playback view.")
+        } else {
+            Logger.ui.info("Unknown words found or text is empty. Staying in transcript view.")
         }
     }
     
@@ -58,10 +74,7 @@ class TranslatorState {
         speechRecognizer.reset()
         self.unknownWords = []
         self.selectedUnknownWordIndex = 0
-    }
-    
-    func skipUnknownWords() {
-        unknownWords.removeAll()
+        self.isShowingPlayback = false
     }
     
     func selectNextWord() {
@@ -77,7 +90,17 @@ class TranslatorState {
     }
     
     // MARK: - Data Logic
-    func updateUnknownWords(knownWords: Set<String>) {
+    
+    func updateKnownWords(from signWords: [SignWord]) {
+        let newKnownWords = Set(signWords.map { $0.text.lowercased() })
+        if newKnownWords != self.knownWords {
+            self.knownWords = newKnownWords
+            // Re-evaluate unknown words if the library has changed.
+            self.updateUnknownWords()
+        }
+    }
+    
+    func updateUnknownWords() {
         let words = recognizedText.components(separatedBy: .whitespacesAndNewlines)
         var foundWords = Set<String>()
         
@@ -134,7 +157,6 @@ class TranslatorState {
     func saveSignWord(for word: String, capturedVideoURL: URL? = nil, context: ModelContext) {
         var finalVideoFileName: String?
         
-        // If a captured video URL is provided, move it to permanent storage.
         if let sourceURL = capturedVideoURL {
             guard let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
                 print("Error: Could not find the documents directory.")
@@ -148,22 +170,22 @@ class TranslatorState {
                 finalVideoFileName = fileName
             } catch {
                 print("Error moving video file: \(error.localizedDescription)")
-                // Don't proceed if the file operation fails.
                 return
             }
         }
         
-        // Insert the new word into the database.
         let newWord = SignWord(text: word.lowercased(), videoFileName: finalVideoFileName)
         context.insert(newWord)
         
-        // Clean up UI state.
         unknownWords.removeAll { $0.lowercased() == word.lowercased() }
         if selectedUnknownWordIndex >= unknownWords.count {
             selectedUnknownWordIndex = max(0, unknownWords.count - 1)
         }
+        
         isShowingCaptureView = false
         dismissVideoPicker()
+        
+        checkPlaybackEligibility()
     }
     
     func dismissVideoPicker() {

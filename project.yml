@@ -2,6 +2,12 @@ name: Papaya
 settings:
   DEVELOPMENT_TEAM: T7PP2KY2B6
 packages:
+  ConfettiSwiftUI:
+    url: https://github.com/simibac/ConfettiSwiftUI
+    from: 2.0.3
+  Lottie:
+    url: https://github.com/airbnb/lottie-ios
+    from: 4.5.2
   SwiftCollections:
     url: https://github.com/apple/swift-collections 
     from: 1.3.0
@@ -16,6 +22,8 @@ targets:
       - path: Papaya
     scheme: {}
     dependencies:
+      - package: ConfettiSwiftUI
+      - package: Lottie
       - package: SwiftCollections
         product: Collections
 
@@ -28,6 +36,10 @@ targets:
         ITSAppUsesNonExemptEncryption: NO
         UILaunchScreen:
           UIViewControllerBasedStatusBarAppearance: false
+      plist:
+        NSCameraUsageDescription: "Use the camera to capture and save your sign language videos."
+        NSMicrophoneUsageDescription: "Use the microphone to transcribe your speech into text."
+        NSSpeechRecognitionUsageDescription: "Use speech recognition to convert your speech into text."
     settings:
       TARGETED_DEVICE_FAMILY: 1
       PRODUCT_NAME: $(TARGET_NAME)

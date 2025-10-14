@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import OSLog
+import Lottie
 
 struct MicHoldButton: View {
     let isRecording: Bool
@@ -14,22 +16,52 @@ struct MicHoldButton: View {
     @State private var isPressed = false
 
     var body: some View {
-        Circle()
-            .fill(isRecording ? Color.red.gradient : Color.accentColor.gradient)
-            .frame(width: 72, height: 72)
-            .overlay(
-                Image(systemName: isRecording ? "waveform" : "mic.fill")
-                    .font(.title)
-                    .foregroundStyle(.white)
-            )
-            .shadow(color: .black.opacity(0.2), radius: 10, y: 5)
-            .scaleEffect(isPressed ? 1.1 : 1.0)
-            .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isPressed)
-            .onLongPressGesture(minimumDuration: .infinity,
-                                pressing: { pressing in
+        ZStack {
+            // MARK: - Background Pulse
+            // A subtle pulsing circle provides constant feedback that the button is interactive.
+            Circle()
+                .fill(Color.papayaOrange.opacity(isRecording ? 0.3 : 0.15))
+                .frame(width: isRecording ? 120 : 80, height: isRecording ? 120 : 80)
+            
+            // MARK: - Main Button
+            Circle()
+                .fill(isRecording ? Color.red.gradient : Color.papayaOrange.gradient)
+                .frame(width: 80, height: 80)
+                .overlay(
+                    LottieView(animation: .named("waveform"))
+                        .playbackMode(.playing(.fromProgress(0, toProgress: 1, loopMode: .loop)))
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 40)
+                        .opacity(isRecording ? 1 : 0)
+                        .overlay(
+                            Image(systemName: "mic.fill")
+                                .font(.title)
+                                .scaleEffect(isRecording ? 0.8 : 1)
+                                .opacity(isRecording ? 0 : 1)
+                        )
+                        .foregroundStyle(.white)
+                )
+                .shadow(color: .black.opacity(0.25), radius: 10, y: 5)
+                .scaleEffect(isPressed ? 1.1 : 1.0)
+        }
+        // Use smooth, spring-based animations for a more natural feel.
+        .animation(.spring(response: 0.4, dampingFraction: 0.6), value: isRecording)
+        .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isPressed)
+        // The `.sensoryFeedback` modifier is the modern way to add haptics.
+        .sensoryFeedback(.impact(weight: .light), trigger: isPressed)
+        .onLongPressGesture(
+            minimumDuration: .infinity,
+            pressing: { pressing in
                 self.isPressed = pressing
                 onPressChanged(pressing)
-            }, perform: {})
+            },
+            perform: {
+            }
+        )
+        .onAppear {
+            Logger.ui.debug("MicHoldButton appeared.")
+        }
     }
 }
 
