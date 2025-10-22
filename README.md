@@ -16,7 +16,7 @@ Users can add missing sign entries by capturing their own videos, building a per
 
 <div align="center">
   <a href="https://youtube.com/shorts/iCIEmuU8Yn8?feature=share">
-    <img src="./assets/papaya_thumbnail.png" alt="Project Video Preview" width="600">
+    <img src="./assets/papaya_thumbnail.png" alt="Project Video Preview" width="250">
   </a>
   <br>
   <em>Click the image above to watch the video on YouTube</em>
