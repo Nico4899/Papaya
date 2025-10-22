@@ -5,7 +5,7 @@ I'm a current master student in Computer Science at TUM. <br />
 During the seven-day Swift preliminary course, which was part of the university course “iPraktikum (IN0012),” we were tasked with developing an iOS app and then presenting it before the course ended. Out of 56 projects submitted, my app came in second place.
 
 <div align="center">
-  <img src="./images/favorite_app.png" width="550">
+  <img src="./assets/favorite_app.png" width="550">
 </div>
 
 ## Project Documentation
@@ -91,13 +91,13 @@ Generative AI was used to improve the UI layout and to refactor complex code, su
 
 #### Analysis Object Model
 
-![Analysis object model](./images/UMLClassDiagram-2.png)
+![Analysis object model](./assets/UMLClassDiagram-2.png)
 
 ### Architecture
 
 #### Subsystem Decomposition
 
-![Subsystem decomposition](./images/UML_Subsystem_Decomposition.png)
+![Subsystem decomposition](./assets/UML_Subsystem_Decomposition.png)
 
 * UI/Frontend — Everything the user can view and interact with.
 * Translation — The logic for transcribing speech-to-text and translating the text to sign language.
