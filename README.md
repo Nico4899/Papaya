@@ -14,6 +14,14 @@ Papaya is a spoken-to-sign language translation app that bridges communication b
 It listens to short spoken phrases, matches each word to a video clip of the corresponding sign from a local sign library, and plays the sequence with smooth, cross-fading transitions.
 Users can add missing sign entries by capturing their own videos, building a personalized sign library over time.
 
+<div align="center">
+  <a href="https://youtube.com/shorts/iCIEmuU8Yn8?feature=share">
+    <img src="./assets/papaya_thumbnail.png" alt="Project Video Preview" width="600">
+  </a>
+  <br>
+  <em>Click the image above to watch the video on YouTube</em>
+</div>
+
 ### Problem Statement
 
 Millions of deaf signers rely on sign languages for natural, fluent communication. In day-to-day interactions at offices, clinics, universities, and public transit, spontaneous access to human interpreters is rare, while text chat and lip-reading are slow, inaccurate, or cognitively demanding. Hearing people often don't know even basic signs, which turns simple, time-critical exchanges into frustrating experiences and social exclusion.
