@@ -1,7 +1,10 @@
 # Papaya - Spoken-to-Sign Language Translator
 
 Hi there, I'm Nico 👋
-I'm a current master student in Computer Science.
+I'm a current master student in Computer Science at TUM. <br />
+During the seven-day Swift preliminary course, which was part of the university course “iPraktikum (IN0012),” we were tasked with developing an iOS app and then presenting it before the course ended. Out of 56 projects submitted, my app came in second place.
+
+![Public Vote](./images/Favorite_App_(Vote))
 
 ## Project Documentation
 
