@@ -15,7 +15,8 @@ class SignPlaybackState {
     var isPlaying = false
     var currentIndex = 0
     var playbackRate: Float = 1.0
-    
+    var totalCount: Int { playerItems.count }
+
     private var playerItems: [AVPlayerItem] = []
     private var signWordsForQueue: [SignWord] = []
     private var cancellables = Set<AnyCancellable>()
@@ -130,15 +131,16 @@ class SignPlaybackState {
         
         // Observe playing status.
         player.publisher(for: \.timeControlStatus)
+            .receive(on: DispatchQueue.main)
             .map { $0 == .playing }
             .sink { [weak self] isNowPlaying in
-                // Directly assign the received value
                 self?.isPlaying = isNowPlaying
             }
             .store(in: &cancellables)
-            
+
         // Observe the current video to update the index.
         player.publisher(for: \.currentItem)
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] item in
                 guard let self = self, let currentItem = item else {
                     return
