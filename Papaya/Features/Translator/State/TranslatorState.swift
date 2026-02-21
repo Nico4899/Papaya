@@ -53,7 +53,17 @@ class TranslatorState {
     func toggleRecording(isPressed: Bool) {
         if isPressed {
             isShowingPlayback = false
-            speechRecognizer.startRecording()
+            Task {
+                let hasMic = await PermissionManager.requestMicrophoneAccess()
+                let hasSpeech = await PermissionManager.requestSpeechRecognitionAccess()
+                await MainActor.run {
+                    if hasMic && hasSpeech {
+                        speechRecognizer.startRecording()
+                    } else {
+                        Logger.ui.error("Microphone or speech recognition permission denied.")
+                    }
+                }
+            }
         } else {
             speechRecognizer.stopRecording()
         }
@@ -134,7 +144,7 @@ class TranslatorState {
         fetchedVideoURL = await videoService.fetchVideoURL(for: word.value)
         
         if fetchedVideoURL == nil {
-            print("Failed to fetch video URL for word: \(word.value)")
+            Logger.data.error("Failed to fetch video URL for word: \(word.value)")
         }
         
         isFetchingVideo = false
@@ -148,7 +158,7 @@ class TranslatorState {
                     self.videoPickerWord = nil
                     self.isShowingCaptureView = true
                 } else {
-                    print("Camera permission denied.")
+                    Logger.ui.error("Camera permission denied.")
                 }
             }
         }
@@ -159,7 +169,7 @@ class TranslatorState {
         
         if let sourceURL = capturedVideoURL {
             guard let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
-                print("Error: Could not find the documents directory.")
+                Logger.data.error("Could not find the documents directory.")
                 return
             }
             let fileName = sourceURL.lastPathComponent
@@ -169,7 +179,7 @@ class TranslatorState {
                 try FileManager.default.moveItem(at: sourceURL, to: destinationURL)
                 finalVideoFileName = fileName
             } catch {
-                print("Error moving video file: \(error.localizedDescription)")
+                Logger.data.error("Error moving video file: \(error.localizedDescription)")
                 return
             }
         }

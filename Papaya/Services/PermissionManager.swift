@@ -6,7 +6,7 @@
 //
 
 import AVFoundation
-import Speech // Import the Speech framework
+import Speech
 
 struct PermissionManager {
     static func requestCameraAccess() async -> Bool {
@@ -15,6 +15,36 @@ struct PermissionManager {
             return true
         case .notDetermined:
             return await AVCaptureDevice.requestAccess(for: .video)
+        default:
+            return false
+        }
+    }
+
+    static func requestMicrophoneAccess() async -> Bool {
+        switch AVAudioApplication.shared.recordPermission {
+        case .granted:
+            return true
+        case .undetermined:
+            return await withCheckedContinuation { continuation in
+                AVAudioApplication.requestRecordPermission { granted in
+                    continuation.resume(returning: granted)
+                }
+            }
+        default:
+            return false
+        }
+    }
+
+    static func requestSpeechRecognitionAccess() async -> Bool {
+        switch SFSpeechRecognizer.authorizationStatus() {
+        case .authorized:
+            return true
+        case .notDetermined:
+            return await withCheckedContinuation { continuation in
+                SFSpeechRecognizer.requestAuthorization { status in
+                    continuation.resume(returning: status == .authorized)
+                }
+            }
         default:
             return false
         }
