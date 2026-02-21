@@ -27,6 +27,6 @@ final class SignWord: Equatable {
 
 extension SignWord {
     static func == (lhs: SignWord, rhs: SignWord) -> Bool {
-        return lhs.text == rhs.text && lhs.videoFileName == rhs.videoFileName
+        return lhs.text == rhs.text && lhs.videoFileName == rhs.videoFileName && lhs.updatedAt == rhs.updatedAt
     }
 }
