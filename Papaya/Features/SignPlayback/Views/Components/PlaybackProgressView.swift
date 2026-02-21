@@ -1,7 +1,12 @@
+//
+//  PlaybackProgressView.swift
+//  Papaya
+//
+//  Created by Nicolas Fliegel on 10.10.25.
+//
+
 import SwiftUI
 
-/// A visual component that displays a series of capsules to indicate the current step
-/// in a sequence, such as a multi-video playback queue.
 struct PlaybackProgressView: View {
     let totalCount: Int
     let currentIndex: Int

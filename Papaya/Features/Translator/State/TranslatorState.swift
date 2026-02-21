@@ -2,7 +2,7 @@
 //  TranslatorViewModel.swift
 //  Papaya
 //
-//  Created by Hans-Peter Fliegel on 09.10.25.
+//  Created by Nicolas Fliegel on 09.10.25.
 //
 
 import SwiftUI

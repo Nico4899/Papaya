@@ -2,7 +2,7 @@
 //  SignPlaybackState.swift
 //  Papaya
 //
-//  Created by Hans-Peter Fliegel on 10.10.25.
+//  Created by Nicolas Fliegel on 10.10.25.
 //
 
 import Foundation

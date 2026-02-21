@@ -2,7 +2,7 @@
 //  SpeechRecognizer.swift
 //  Papaya
 //
-//  Created by Hans-Peter Fliegel on 08.10.25.
+//  Created by Nicolas Fliegel on 08.10.25.
 //
 
 import SwiftUI

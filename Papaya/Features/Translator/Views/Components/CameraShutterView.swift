@@ -2,7 +2,7 @@
 //  CameraShutterView.swift
 //  Papaya
 //
-//  Created by Hans-Peter Fliegel on 13.10.25.
+//  Created by Nicolas Fliegel on 13.10.25.
 //
 
 import SwiftUI
