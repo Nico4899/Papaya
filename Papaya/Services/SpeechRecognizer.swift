@@ -29,6 +29,15 @@ class SpeechRecognizer {
             return
         }
 
+        let audioSession = AVAudioSession.sharedInstance()
+        do {
+            try audioSession.setCategory(.record, mode: .measurement, options: .duckOthers)
+            try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
+        } catch {
+            Logger.data.error("Failed to setup audio session: \(error.localizedDescription)")
+            return
+        }
+
         recognitionRequest = SFSpeechAudioBufferRecognitionRequest()
         guard let recognitionRequest = recognitionRequest else {
             Logger.data.error("Unable to create a recognition request")
@@ -69,6 +78,12 @@ class SpeechRecognizer {
         if audioEngine.isRunning {
             audioEngine.stop()
             audioEngine.inputNode.removeTap(onBus: 0)
+            
+            do {
+                try AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+            } catch {
+                Logger.data.error("Failed to deactivate audio session: \(error.localizedDescription)")
+            }
         }
         recognitionRequest?.endAudio()
         isRecording = false

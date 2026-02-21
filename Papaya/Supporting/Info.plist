@@ -2,12 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>NSCameraUsageDescription</key>
-    <string>Use the camera to capture and save your sign language videos.</string>
-    <key>NSMicrophoneUsageDescription</key>
-    <string>Use the microphone to transcribe your speech into text.</string>
-    <key>NSSpeechRecognitionUsageDescription</key>
-    <string>Use speech recognition to convert your speech into text.</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
@@ -32,11 +26,20 @@
 	<string>1</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<key>NSCameraUsageDescription</key>
+	<string>Papaya needs camera access to record sign videos when adding entries to your personal sign library.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Papaya needs microphone access so you can practice sign language with voice feedback.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Papaya needs to recognize speech to transcribe spoken speech into text for building sign sequences.</string>
 	<key>UILaunchScreen</key>
 	<dict>
 		<key>UIViewControllerBasedStatusBarAppearance</key>
 		<false/>
 	</dict>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+	</array>
 </dict>
 </plist>
-
