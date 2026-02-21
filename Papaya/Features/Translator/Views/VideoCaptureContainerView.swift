@@ -24,6 +24,8 @@ struct VideoCaptureContainerView: View {
     // UI State
     @State private var isReferencePlayerVisible = true
     @State private var confettiCounter = 0
+    @State private var reviewPlayer: AVPlayer?
+    @State private var referencePlayer: AVPlayer?
     
     var body: some View {
         ZStack {
@@ -50,22 +52,35 @@ struct VideoCaptureContainerView: View {
             }
             
             // The reference video player can be shown or hidden.
-            if let url = referenceVideoURL, state.capturePhase != .review, isReferencePlayerVisible {
-                referenceVideoPlayer(url: url)
+            if referenceVideoURL != nil, state.capturePhase != .review, isReferencePlayerVisible {
+                referenceVideoPlayer()
             }
             
             // The review view appears as a full-screen overlay after recording.
             if state.capturePhase == .review, let url = state.recordedVideoURL {
                 reviewView(url: url)
+                    .onAppear {
+                        reviewPlayer = AVPlayer(url: url)
+                        reviewPlayer?.play()
+                    }
+                    .onDisappear {
+                        reviewPlayer = nil
+                    }
             }
         }
         .confettiCannon(trigger: $confettiCounter, num: 50, radius: 500)
         .animation(.spring(response: 0.4, dampingFraction: 0.7), value: state.capturePhase)
         .animation(.spring(), value: isReferencePlayerVisible)
         .onAppear {
+            if let referenceVideoURL {
+                referencePlayer = AVPlayer(url: referenceVideoURL)
+                referencePlayer?.play()
+            }
             Logger.camera.info("VideoCaptureContainerView appeared for word: '\(self.word)'")
         }
         .onDisappear {
+            reviewPlayer = nil
+            referencePlayer = nil
             state.reset()
             Logger.camera.info("VideoCaptureContainerView disappeared, state reset.")
         }
@@ -151,17 +166,19 @@ struct VideoCaptureContainerView: View {
         ZStack {
             // A black background ensures the video is the focus.
             Color.black.ignoresSafeArea()
-            
+
             VStack {
                 Text("Review Your Sign")
                     .font(.system(.title2, design: .rounded))
                     .fontWeight(.bold)
                     .foregroundStyle(.white)
                     .padding(.top)
-                
-                VideoPlayer(player: AVPlayer(url: url))
-                    .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-                    .padding(.horizontal)
+
+                if let reviewPlayer {
+                    VideoPlayer(player: reviewPlayer)
+                        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+                        .padding(.horizontal)
+                }
 
                 HStack(spacing: 16) {
                     // "Retake" is a secondary action.
@@ -201,8 +218,12 @@ struct VideoCaptureContainerView: View {
     }
     
     /// The small, picture-in-picture style reference video player.
-    private func referenceVideoPlayer(url: URL) -> some View {
-        VideoPlayer(player: AVPlayer(url: url))
+    private func referenceVideoPlayer() -> some View {
+        Group {
+            if let referencePlayer {
+                VideoPlayer(player: referencePlayer)
+            }
+        }
             .aspectRatio(16 / 9, contentMode: .fit)
             .frame(width: 120)
             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
