@@ -22,8 +22,10 @@ class CameraService: NSObject, AVCaptureFileOutputRecordingDelegate {
     private func setup() {
         session.beginConfiguration()
         
+        // Attempt to find the camera. This will fail safely on the Simulator.
         guard let device = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .front),
               let input = try? AVCaptureDeviceInput(device: device) else {
+            print("Camera not available (expected if running on Simulator).")
             session.commitConfiguration()
             return
         }
@@ -38,11 +40,32 @@ class CameraService: NSObject, AVCaptureFileOutputRecordingDelegate {
         
         session.commitConfiguration()
     }
+    
+    func startSession() {
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let self = self else { return }
+            if !self.session.isRunning {
+                self.session.startRunning()
+            }
+        }
+    }
+    
+    func stopSession() {
+        if session.isRunning {
+            session.stopRunning()
+        }
+    }
 
     func startRecording() {
+        guard let connection = output.connection(with: .video), connection.isActive else {
+            print("Cannot start recording: No active video connection.")
+            return
+        }
+        
         let tempURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString)
             .appendingPathExtension("mov")
+        
         output.startRecording(to: tempURL, recordingDelegate: self)
     }
 
