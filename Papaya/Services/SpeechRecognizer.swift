@@ -8,6 +8,7 @@
 import SwiftUI
 import Speech
 import AVFoundation
+import OSLog
 
 @Observable
 class SpeechRecognizer {
@@ -24,20 +25,26 @@ class SpeechRecognizer {
         reset()
         
         guard let speechRecognizer = speechRecognizer, speechRecognizer.isAvailable else {
-            print("Speech recognizer is not available")
+            Logger.data.error("Speech recognizer is not available")
             return
         }
 
         recognitionRequest = SFSpeechAudioBufferRecognitionRequest()
         guard let recognitionRequest = recognitionRequest else {
-            fatalError("Unable to create a recognition request")
+            Logger.data.error("Unable to create a recognition request")
+            return
         }
 
-        recognitionTask = speechRecognizer.recognitionTask(with: recognitionRequest) { result, _ in
+        recognitionTask = speechRecognizer.recognitionTask(with: recognitionRequest) { result, error in
             if let result = result {
                 let newText = result.bestTranscription.formattedString
                 self.recognizedText = newText
                 self.onTranscriptUpdate?(newText)
+            }
+
+            if let error = error {
+                Logger.data.error("Speech recognition error: \(error.localizedDescription)")
+                self.stopRecording()
             }
         }
 
@@ -54,7 +61,7 @@ class SpeechRecognizer {
             try audioEngine.start()
             isRecording = true
         } catch {
-            print("Audio engine failed to start: \(error.localizedDescription)")
+            Logger.data.error("Audio engine failed to start: \(error.localizedDescription)")
         }
     }
 
