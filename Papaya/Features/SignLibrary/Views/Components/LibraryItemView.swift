@@ -38,6 +38,10 @@ struct LibraryItemView: View {
         .onChange(of: item, initial: true) { _, newItem in
             setupPlayer(for: newItem)
         }
+        .onDisappear {
+            player?.pause()
+            player = nil
+        }
     }
     
     // MARK: - Grid View
