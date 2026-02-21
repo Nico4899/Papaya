@@ -8,6 +8,7 @@
 import Foundation
 import AVFoundation
 import Observation
+import OSLog
 
 @Observable
 final class VideoCaptureState {
@@ -36,11 +37,13 @@ final class VideoCaptureState {
     func startCountdown() {
         capturePhase = .countingDown
         countdown = 3
-        countdownTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+        let timer = Timer(timeInterval: 1.0, repeats: true) { [weak self] _ in
             self?.tickCountdown()
         }
+        RunLoop.main.add(timer, forMode: .common)
+        countdownTimer = timer
     }
-    
+
     private func tickCountdown() {
         if countdown > 1 {
             countdown -= 1
@@ -64,7 +67,7 @@ final class VideoCaptureState {
                     self?.recordedVideoURL = url
                     self?.capturePhase = .review
                 } else {
-                    print("Error saving video: \(error?.localizedDescription ?? "Unknown error")")
+                    Logger.camera.error("Error saving video: \(error?.localizedDescription ?? "Unknown error")")
                     self?.reset()
                 }
                 self?.recordingStart = nil
