@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import OSLog
 
 class SignVideoAPIService {
     private let videoSources = [
@@ -48,7 +49,7 @@ class SignVideoAPIService {
                 return true
             }
         } catch {
-            print("HEAD request failed for \(url): \(error.localizedDescription)")
+            Logger.data.error("HEAD request failed for \(url): \(error.localizedDescription)")
         }
         
         return false

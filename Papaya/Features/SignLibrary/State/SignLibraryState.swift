@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import OSLog
 
 @Observable
 class SignLibraryState {
@@ -177,7 +178,7 @@ class SignLibraryState {
         
         // Move the new video file from temp to permanent storage.
         guard let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
-            print("Error: Could not find documents directory.")
+            Logger.data.error("Could not find documents directory.")
             return
         }
         
@@ -202,7 +203,7 @@ class SignLibraryState {
             onAppear() // Refresh the library
             
         } catch {
-            print("Error moving captured video file: \(error.localizedDescription)")
+            Logger.data.error("Error moving captured video file: \(error.localizedDescription)")
         }
     }
     
@@ -211,7 +212,7 @@ class SignLibraryState {
         do {
             return try context.fetch(descriptor)
         } catch {
-            print("Failed to fetch local words: \(error)")
+            Logger.data.error("Failed to fetch local words: \(error)")
             return []
         }
     }
