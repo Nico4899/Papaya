@@ -8,7 +8,6 @@
 import SwiftUI
 import AVKit
 import OSLog
-import ConfettiSwiftUI
 
 struct VideoCaptureContainerView: View {
     // MARK: - Properties
