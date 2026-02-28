@@ -7,7 +7,6 @@
 
 import SwiftUI
 import OSLog
-import Lottie
 
 struct MicHoldButton: View {
     let isRecording: Bool
@@ -28,11 +27,8 @@ struct MicHoldButton: View {
                 .fill(isRecording ? Color.red.gradient : Color.papayaOrange.gradient)
                 .frame(width: 80, height: 80)
                 .overlay(
-                    LottieView(animation: .named("waveform"))
-                        .playbackMode(.playing(.fromProgress(0, toProgress: 1, loopMode: .loop)))
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 40)
+                    WaveformView(isAnimating: isRecording)
+                        .frame(width: 40, height: 24)
                         .opacity(isRecording ? 1 : 0)
                         .overlay(
                             Image(systemName: "mic.fill")
