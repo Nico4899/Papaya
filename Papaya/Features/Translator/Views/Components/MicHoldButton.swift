@@ -46,6 +46,9 @@ struct MicHoldButton: View {
         .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isPressed)
         // The `.sensoryFeedback` modifier is the modern way to add haptics.
         .sensoryFeedback(.impact(weight: .light), trigger: isPressed)
+        .accessibilityLabel(isRecording ? "Stop recording" : "Microphone")
+        .accessibilityHint("Press and hold to record speech.")
+        .accessibilityAddTraits(.startsMediaSession)
         .onLongPressGesture(
             minimumDuration: .infinity,
             pressing: { pressing in

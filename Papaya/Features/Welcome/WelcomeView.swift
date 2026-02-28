@@ -35,6 +35,7 @@ struct WelcomeView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 30, style: .continuous))
                     // A subtle shadow adds depth and makes the icon pop from the background.
                     .shadow(color: .black.opacity(0.2), radius: 10, y: 5)
+                    .accessibilityLabel("Papaya app icon")
                 
                 // MARK: - Welcome Text
                 Text("Welcome to Papaya")
@@ -66,6 +67,7 @@ struct WelcomeView: View {
                 }
                 // A custom button style for our primary call-to-action.
                 .buttonStyle(PrimaryActionButtonStyle())
+                .accessibilityHint("Opens the speech-to-sign translator.")
                 .padding(.horizontal, 40)
                 .padding(.bottom, 20)
             }

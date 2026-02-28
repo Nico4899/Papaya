@@ -35,6 +35,8 @@ struct TranscriptView: View {
                     .font(.title3)
                     .padding()
                     .frame(maxWidth: .infinity, alignment: .leading)
+                    .accessibilityLabel("Transcript: \(text)")
+                    .accessibilityValue(unknownWords.isEmpty ? "All words are in your library." : "\(unknownWords.count) unknown word\(unknownWords.count == 1 ? "" : "s").")
             }
             // Encapsulating the view in a material background for a modern look.
             .background(.regularMaterial)
@@ -48,6 +50,8 @@ struct TranscriptView: View {
                         .padding(8)
                         .background(.ultraThinMaterial, in: Circle())
                 }
+                .accessibilityLabel("Clear transcript")
+                .accessibilityHint("Removes the current transcript and resets the translator.")
                 .padding(8)
             }
         }

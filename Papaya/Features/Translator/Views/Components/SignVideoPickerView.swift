@@ -57,6 +57,8 @@ struct AddSignView: View {
                         .fill(Color(.systemGray6))
                 )
                 .shadow(color: .black.opacity(0.15), radius: 8)
+                .accessibilityLabel("3D hand preview for \(word)")
+                .accessibilityHint(ASLSignLibrary.hasDedicatedSign(for: word) ? "Showing the ASL sign for \(word)." : "Showing \(word) fingerspelled letter by letter.")
 
             // MARK: - Action Buttons
             VStack(spacing: 12) {
@@ -69,6 +71,7 @@ struct AddSignView: View {
                 .buttonStyle(.borderedProminent)
                 .controlSize(.large)
                 .tint(.papayaOrange)
+                .accessibilityHint("Saves \(word) to your sign library.")
 
                 // "Capture My Sign" lets the user record their own video.
                 Button(action: onCapture) {
@@ -79,6 +82,7 @@ struct AddSignView: View {
                 .buttonStyle(.bordered)
                 .controlSize(.large)
                 .tint(.papayaOrange)
+                .accessibilityHint("Opens the camera to record yourself signing \(word).")
 
                 Button("Cancel", role: .cancel, action: onCancel)
                     .tint(.secondary)

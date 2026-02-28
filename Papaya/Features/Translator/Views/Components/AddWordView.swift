@@ -28,6 +28,7 @@ struct AddWordView: View {
                     Image(systemName: "chevron.left.circle.fill")
                 }
                 .disabled(!canGoPrevious)
+                .accessibilityLabel("Previous unknown word")
                 
                 // Display the current word to be added. The `textCase(.uppercase)`
                 // provides a distinct visual style.
@@ -43,6 +44,7 @@ struct AddWordView: View {
                     Image(systemName: "chevron.right.circle.fill")
                 }
                 .disabled(!canGoNext)
+                .accessibilityLabel("Next unknown word")
             }
             .font(.title) // Increase the tap target size of the chevron buttons.
             .foregroundStyle(Color.papayaOrange)
@@ -62,8 +64,11 @@ struct AddWordView: View {
             .buttonStyle(.borderedProminent)
             .tint(.papayaOrange)
             .controlSize(.large) // Larger buttons are easier to tap.
+            .accessibilityHint("Opens a sheet to add this sign to your library.")
         }
         .padding()
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Unknown word selector, currently showing \(currentWord).")
         // `.regularMaterial` provides a modern, translucent background that adapts to any content behind it.
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
         .transition(.move(edge: .bottom).combined(with: .opacity))
