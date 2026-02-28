@@ -1,28 +1,27 @@
 //
-//  SignVideoPickerView.swift
+//  AddSignView.swift
 //  Papaya
 //
 //  Created by Nicolas Fliegel on 10.10.25.
 //
 
 import SwiftUI
-import AVKit
 import OSLog
 
-struct SignVideoPickerView: View {
+/// A sheet that lets the user add a word to their sign library.
+/// Shows a 3D hand preview of how the word will be signed (fingerspelled
+/// or dedicated ASL sign) and offers options to save or capture a custom video.
+struct AddSignView: View {
     // MARK: - Properties
     let word: String
-    let videoURL: URL?
-    let isLoading: Bool
-    
-    var onConfirm: () -> Void
+
+    var onSaveToLibrary: () -> Void
     var onCapture: () -> Void
     var onCancel: () -> Void
-    
-    // Using a private state for the player encapsulates its logic within the view.
-    @State private var player: AVPlayer?
-    @State private var networkError: String?
-    
+
+    @State private var previewState = HandSignPlaybackState()
+    @State private var hasStartedPreview = false
+
     // MARK: - Body
     var body: some View {
         VStack(spacing: 20) {
@@ -36,53 +35,51 @@ struct SignVideoPickerView: View {
                 .multilineTextAlignment(.center)
                 .foregroundStyle(Color.papayaOrange)
 
-            // MARK: - Video Player View
-            ZStack {
-                // The background provides a consistent frame for the content.
-                RoundedRectangle(cornerRadius: 20, style: .continuous)
-                    .fill(.regularMaterial)
-                
-                if isLoading {
-                    ProgressView()
-                } else if let player {
-                    // Using a custom player view for more control in the future.
-                    VideoPlayer(player: player)
-                        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+            // Sign type indicator.
+            HStack(spacing: 6) {
+                if ASLSignLibrary.hasDedicatedSign(for: word) {
+                    Image(systemName: "hand.raised.fill")
+                    Text("Dedicated ASL Sign")
                 } else {
-                    // Provide a more informative error message.
-                    ContentUnavailableView(
-                        "Video Not Found",
-                        systemImage: networkError != nil ? "wifi.exclamationmark" : "video.slash",
-                        description: Text(networkError ?? "No reference video could be found online.")
-                    )
+                    Image(systemName: "textformat.abc")
+                    Text("Will be fingerspelled")
                 }
             }
-            .aspectRatio(16 / 9, contentMode: .fit)
-            .shadow(color: .black.opacity(0.15), radius: 8)
-            
+            .font(.subheadline)
+            .foregroundStyle(.secondary)
+
+            // MARK: - 3D Hand Preview
+            HandSignView(scene: previewState.scene)
+                .aspectRatio(3 / 4, contentMode: .fit)
+                .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                .background(
+                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                        .fill(Color(.systemGray6))
+                )
+                .shadow(color: .black.opacity(0.15), radius: 8)
+
             // MARK: - Action Buttons
             VStack(spacing: 12) {
-                // "Capture My Sign" is the primary action for the user.
-                Button(action: onCapture) {
-                    Label("Capture My Sign", systemImage: "camera.fill")
+                // "Add to Library" saves the word so it's recognized during translation.
+                Button(action: onSaveToLibrary) {
+                    Label("Add to Library", systemImage: "plus.circle.fill")
                         .fontWeight(.bold)
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.borderedProminent)
                 .controlSize(.large)
                 .tint(.papayaOrange)
-                
-                // "Save Web Video" is a secondary, but still important, action.
-                Button(action: onConfirm) {
-                    Label("Save Web Video", systemImage: "icloud.and.arrow.down.fill")
+
+                // "Capture My Sign" lets the user record their own video.
+                Button(action: onCapture) {
+                    Label("Capture My Sign", systemImage: "camera.fill")
                         .fontWeight(.semibold)
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.bordered)
                 .controlSize(.large)
                 .tint(.papayaOrange)
-                .disabled(isLoading || videoURL == nil)
-                
+
                 Button("Cancel", role: .cancel, action: onCancel)
                     .tint(.secondary)
                     .padding(.top, 8)
@@ -90,61 +87,20 @@ struct SignVideoPickerView: View {
         }
         .padding(.horizontal)
         .padding(.bottom)
-        .onChange(of: videoURL) { _, newURL in
-            updatePlayer(with: newURL)
-        }
         .onAppear {
-            Logger.ui.info("SignVideoPickerView appeared for word: \(self.word)")
-            updatePlayer(with: videoURL)
-        }
-    }
-    
-    /// Updates the AVPlayer instance when the video URL changes.
-    private func updatePlayer(with url: URL?) {
-        // Reset first
-        player = nil
-        networkError = nil
-
-        guard let url else {
-            return
-        }
-
-        let asset = AVURLAsset(url: url)
-
-        // Use AVFoundation's typed async property loading (iOS 16+)
-        Task {
-            do {
-                let isPlayable = try await asset.load(.isPlayable)
-
-                await MainActor.run {
-                    if isPlayable {
-                        let item = AVPlayerItem(asset: asset)
-                        let newPlayer = AVPlayer(playerItem: item)
-                        self.player = newPlayer
-                        newPlayer.play()
-                    } else {
-                        self.networkError = "This video can't be played."
-                        Logger.data.error("Asset at \(url.absoluteString, privacy: .public) is not playable.")
-                    }
-                }
-            } catch {
-                await MainActor.run {
-                    self.networkError = "Could not load video. Please check your internet connection."
-                    Logger.data.error("Failed to load asset: \(error.localizedDescription, privacy: .public)")
-                    self.player = nil
-                }
-            }
+            guard !hasStartedPreview else { return }
+            hasStartedPreview = true
+            previewState.setup(with: [word])
+            previewState.play()
+            Logger.ui.info("AddSignView appeared for word: \(self.word)")
         }
     }
 }
 
-
 #Preview {
-    SignVideoPickerView(
-        word: "Found",
-        videoURL: URL(string: "https://media.signbsl.com/videos/asl/aslsignbank/mp4/FIND-2916.mp4"),
-        isLoading: false,
-        onConfirm: {},
+    AddSignView(
+        word: "hello",
+        onSaveToLibrary: {},
         onCapture: {},
         onCancel: {}
     )

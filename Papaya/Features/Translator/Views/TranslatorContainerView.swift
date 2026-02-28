@@ -10,26 +10,10 @@ import SwiftData
 
 struct TranslatorContainerView: View {
     @State private var state = TranslatorState()
-    @State private var playbackState = SignPlaybackState()
-    
+    @State private var playbackState = HandSignPlaybackState()
+
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \SignWord.text) private var signWords: [SignWord]
-    
-    private var signWordSet: Set<String> {
-        Set(signWords.map { $0.text.lowercased() })
-    }
-    
-    private var playbackSignWords: [SignWord] {
-        let transcriptWords = state.recognizedText
-            .lowercased()
-            .components(separatedBy: .whitespacesAndNewlines)
-            .map { $0.trimmingCharacters(in: .punctuationCharacters) }
-            .filter { !$0.isEmpty }
-
-        let signWordMap = Dictionary(signWords.map { ($0.text, $0) }, uniquingKeysWith: { first, _ in first })
-
-        return transcriptWords.compactMap { signWordMap[$0] }
-    }
 
     var body: some View {
         ZStack {
@@ -39,7 +23,7 @@ struct TranslatorContainerView: View {
                 endPoint: .bottom
             )
             .ignoresSafeArea()
-            
+
             VStack(spacing: 20) {
                 Group {
                     if !state.recognizedText.isEmpty {
@@ -54,7 +38,7 @@ struct TranslatorContainerView: View {
                                 selectedIndex: state.selectedUnknownWordIndex,
                                 onReset: {
                                     state.resetTranscript()
-                                    playbackState.player.removeAllItems()
+                                    playbackState.replay()
                                 }
                             )
                         }
@@ -69,18 +53,18 @@ struct TranslatorContainerView: View {
                     }
                 }
                 .frame(maxHeight: .infinity)
-                
+
                 if !state.unknownWords.isEmpty && !state.isShowingPlayback {
                     AddWordView(
                         currentWord: state.currentUnknownWord,
                         canGoPrevious: state.selectedUnknownWordIndex > 0,
                         canGoNext: state.selectedUnknownWordIndex < state.unknownWords.count - 1,
-                        onAdd: state.presentVideoPicker,
+                        onAdd: state.presentAddSign,
                         onPrevious: state.selectPreviousWord,
                         onNext: state.selectNextWord
                     )
                 }
-                
+
                 MicHoldButton(
                     isRecording: state.isRecording,
                     onPressChanged: { isPressed in
@@ -102,7 +86,7 @@ struct TranslatorContainerView: View {
         }
         .animation(.spring(), value: state.recognizedText.isEmpty)
         .animation(.spring(), value: state.unknownWords.isEmpty)
-        .animation(.spring(), value: playbackSignWords.isEmpty)
+        .animation(.spring(), value: state.isShowingPlayback)
         .onChange(of: state.isRecording) { wasRecording, isRecordingNow in
             if wasRecording && !isRecordingNow {
                 state.checkPlaybackEligibility()
@@ -116,30 +100,24 @@ struct TranslatorContainerView: View {
             // Keep the state owner updated if the database changes.
             state.updateKnownWords(from: newWords)
         }
-        .onChange(of: playbackSignWords) { _, newPlaybackWords in
-            // This remains necessary to configure the AVPlayer queue.
-            playbackState.setup(with: newPlaybackWords)
+        .onChange(of: state.transcriptWords) { _, newWords in
+            // Configure the 3D hand playback with all transcript words.
+            // Every word can be rendered (dedicated sign or fingerspelling).
+            playbackState.setup(with: newWords)
         }
-        .sheet(item: $state.videoPickerWord) { item in
-            SignVideoPickerView(
+        .sheet(item: $state.addSignWord) { item in
+            AddSignView(
                 word: item.value,
-                videoURL: state.fetchedVideoURL,
-                isLoading: state.isFetchingVideo,
-                onConfirm: { state.saveSignWord(for: item.value, context: modelContext) },
+                onSaveToLibrary: { state.saveSignWord(for: item.value, context: modelContext) },
                 onCapture: state.presentCaptureView,
-                onCancel: state.dismissVideoPicker
+                onCancel: state.dismissAddSign
             )
-            .onAppear {
-                Task {
-                    await state.fetchSignVideo()
-                }
-            }
             .presentationDetents([.medium, .large])
         }
         .fullScreenCover(isPresented: $state.isShowingCaptureView) {
             VideoCaptureContainerView(
                 word: state.currentUnknownWord,
-                referenceVideoURL: state.fetchedVideoURL,
+                referenceVideoURL: nil,
                 onSave: { url in
                     state.saveSignWord(for: state.currentUnknownWord, capturedVideoURL: url, context: modelContext)
                 },
