@@ -6,18 +6,15 @@
 //
 
 import SwiftUI
-import AVKit
 
 struct LibraryItemView: View {
     let item: LibraryItem
     let layout: SignLibraryState.LayoutStyle
-    
+
     var onTap: () -> Void
     var onEdit: () -> Void = {}
     var onDelete: () -> Void = {}
-    
-    @State private var player: AVPlayer?
-    
+
     var body: some View {
         Button(action: onTap) {
             Group {
@@ -27,127 +24,88 @@ struct LibraryItemView: View {
                 }
             }
             .contextMenu {
-                if !item.isRemote {
-                    Button("Edit Sign", systemImage: "pencil", action: onEdit)
-                    Button("Delete Sign", systemImage: "trash", role: .destructive, action: onDelete)
-                }
+                Button("Edit Sign", systemImage: "pencil", action: onEdit)
+                Button("Delete Sign", systemImage: "trash", role: .destructive, action: onDelete)
             }
         }
         .buttonStyle(.plain)
         .animation(.spring(), value: layout)
-        .onChange(of: item, initial: true) { _, newItem in
-            setupPlayer(for: newItem)
-        }
-        .onDisappear {
-            player?.pause()
-            player = nil
-        }
     }
-    
+
     // MARK: - Grid View
     private var gridView: some View {
         VStack(alignment: .leading, spacing: 8) {
-            videoPlayerView
-            
+            handSignPreview
+
             VStack(alignment: .leading) {
                 Text(item.word)
                     .font(.headline)
                     .lineLimit(1)
-                
-                sourceInfo
+
+                signTypeLabel
                     .font(.caption)
             }
             .padding([.horizontal, .bottom], 8)
         }
         .background(.thinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .overlay(borderAndBadge)
+        .overlay(savedBadge)
     }
-    
+
     // MARK: - List View
     private var listView: some View {
         HStack(spacing: 16) {
-            videoPlayerView
+            handSignPreview
                 .frame(width: 100)
-                .overlay(borderAndBadge)
-            
+
             VStack(alignment: .leading) {
                 Text(item.word)
                     .font(.headline)
-                sourceInfo
+                signTypeLabel
                     .font(.subheadline)
             }
             Spacer()
         }
     }
-    
+
     // MARK: - Shared Components
-    @ViewBuilder
-    private var videoPlayerView: some View {
-        if let player = player {
-            VideoPlayer(player: player)
-                .aspectRatio(16 / 9, contentMode: .fit)
-                .disabled(true)
-        } else {
-            Rectangle()
-                .fill(Color.secondary.opacity(0.2))
-                .aspectRatio(16 / 9, contentMode: .fit)
-                .overlay { Image(systemName: "video.slash") }
-        }
+
+    /// A 3D hand pose preview showing the first frame of this word's sign.
+    private var handSignPreview: some View {
+        HandSignView(word: item.word)
+            .aspectRatio(3 / 4, contentMode: .fit)
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .background(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .fill(Color(.systemGray6))
+            )
     }
-        
-    
-    @ViewBuilder
-    private var sourceInfo: some View {
-        switch item.source {
-        case .local(let signWord):
-            Text(signWord.updatedAt.formatted(.relative(presentation: .named)))
-                .foregroundStyle(.secondary)
-        case .remote:
-            HStack(spacing: 4) {
-                Image(systemName: "cloud")
-                Text("Tap to save")
+
+    /// Shows whether the word has a dedicated sign or uses fingerspelling.
+    private var signTypeLabel: some View {
+        HStack(spacing: 4) {
+            if item.hasDedicatedSign {
+                Image(systemName: "hand.raised.fill")
+                Text("ASL Sign")
+            } else {
+                Image(systemName: "textformat.abc")
+                Text("Fingerspelled")
             }
-            .foregroundColor(.accentColor)
         }
+        .foregroundStyle(.secondary)
     }
-    
-    @ViewBuilder
-    private var borderAndBadge: some View {
+
+    /// A bookmark badge indicating the sign is saved in the library.
+    private var savedBadge: some View {
         ZStack(alignment: .topLeading) {
-            // Dashed border for remote items
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .stroke(style: StrokeStyle(lineWidth: 2, dash: (item.isRemote ? [5] : [])))
-                .foregroundStyle(Color.accentColor.opacity(item.isRemote ? 0.7 : 0))
-            
-            // "Saved" badge for local items
-            if !item.isRemote {
-                Image(systemName: "bookmark.fill")
-                    .font(.caption2.bold())
-                    .foregroundStyle(.white)
-                    .padding(5)
-                    .background(Color.accentColor.gradient)
-                    .clipShape(Circle())
-                    .padding(6)
-            }
-        }
-    }
-    
-    private func setupPlayer(for item: LibraryItem) {
-        var url: URL?
-        switch item.source {
-        case .local(let signWord):
-            if let fileName = signWord.videoFileName {
-                url = VideoURLManager.getVideoURL(for: fileName)
-            }
-        case .remote(let remoteURL):
-            url = remoteURL
-        }
-        
-        if let url = url {
-            self.player = AVPlayer(url: url)
-        } else {
-            self.player = nil
+            Color.clear
+            Image(systemName: "bookmark.fill")
+                .font(.caption2.bold())
+                .foregroundStyle(.white)
+                .padding(5)
+                .background(Color.accentColor.gradient)
+                .clipShape(Circle())
+                .padding(6)
         }
     }
 }
@@ -156,7 +114,7 @@ struct LibraryItemView: View {
     LibraryItemView(
         item: LibraryItem(
             word: "Hello",
-            source: .local(signWord: SignWord(text: "hello"))
+            signWord: SignWord(text: "hello")
         ),
         layout: .grid,
         onTap: { print("Item tapped") },
