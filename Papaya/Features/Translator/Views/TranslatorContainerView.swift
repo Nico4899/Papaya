@@ -11,6 +11,7 @@ import SwiftData
 struct TranslatorContainerView: View {
     @State private var state = TranslatorState()
     @State private var playbackState = HandSignPlaybackState()
+    @State private var isShowingPractice = false
 
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \SignWord.text) private var signWords: [SignWord]
@@ -78,11 +79,19 @@ struct TranslatorContainerView: View {
         .navigationTitle("Translator")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
+            ToolbarItemGroup(placement: .navigationBarTrailing) {
+                // Practice mode: learn ASL fingerspelling with hand pose detection.
+                Button(action: { isShowingPractice = true }) {
+                    Image(systemName: "hand.raised.fingers.spread")
+                }
+
                 NavigationLink(destination: SignLibraryContainerView()) {
                     Image(systemName: "books.vertical.fill")
                 }
             }
+        }
+        .fullScreenCover(isPresented: $isShowingPractice) {
+            PracticeContainerView()
         }
         .animation(.spring(), value: state.recognizedText.isEmpty)
         .animation(.spring(), value: state.unknownWords.isEmpty)
