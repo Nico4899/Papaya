@@ -11,24 +11,14 @@ import SwiftData
 struct SignLibraryContainerView: View {
     @State private var state = SignLibraryState()
     @Environment(\.modelContext) private var modelContext
-    
+
     private var columns: [GridItem] = [ GridItem(.adaptive(minimum: 150), spacing: 16) ]
-    
-    private var localItems: [LibraryItem] {
-        state.displayItems.filter { !$0.isRemote }
-    }
-    
-    private var remoteItems: [LibraryItem] {
-        state.displayItems.filter { $0.isRemote }
-    }
-    
+
     var body: some View {
         @Bindable var state = state
         NavigationStack {
             Group {
-                if state.isLoadingInitialContent {
-                    ProgressView("Loading Library...")
-                } else if state.displayItems.isEmpty {
+                if state.displayItems.isEmpty {
                     emptyStateView
                 } else {
                     content
@@ -44,25 +34,13 @@ struct SignLibraryContainerView: View {
                 state.onSearchChanged()
             }
             .sheet(item: $state.selectedItemForPreview) { item in
-                VideoPreviewView(item: item)
-            }
-            .sheet(item: $state.selectedRemoteItem) { item in
-                RemoteSignSaveView(
-                    item: item,
-                    onSaveFromWeb: {
-                        state.saveRemoteItemFromWeb(item: item, context: modelContext)
-                    },
-                    onCapture: {
-                        state.startCapture(for: item)
-                    },
-                    onCancel: { state.selectedRemoteItem = nil }
-                )
+                SignPreviewView(item: item)
             }
             .fullScreenCover(isPresented: $state.isShowingCaptureView) {
                 if let signWord = state.itemToRecapture {
                     VideoCaptureContainerView(
                         word: signWord.text,
-                        referenceVideoURL: state.referenceVideoURLForCapture,
+                        referenceVideoURL: nil,
                         onSave: { newVideoURL in
                             state.saveCapturedVideo(for: signWord, videoURL: newVideoURL, context: modelContext)
                         },
@@ -82,7 +60,7 @@ struct SignLibraryContainerView: View {
             }
         }
     }
-    
+
     private var content: some View {
         ScrollView {
             Group {
@@ -93,48 +71,22 @@ struct SignLibraryContainerView: View {
                 }
             }
             .padding()
-            .overlay {
-                if state.isSearchingRemotely { ProgressView() }
-            }
-        }
-    }
-    
-    @ViewBuilder
-    private var items: some View {
-        ForEach(localItems) { item in
-            libraryItemView(for: item)
-        }
-        
-        if !remoteItems.isEmpty {
-            Section {
-                ForEach(remoteItems) { item in
-                    libraryItemView(for: item)
-                }
-            } header: {
-                Text("Suggestions")
-                    .font(.headline)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.top)
-            }
         }
     }
 
-    private func libraryItemView(for item: LibraryItem) -> some View {
-        LibraryItemView(
-            item: item,
-            layout: state.layout,
-            onTap: {
-                if item.isRemote {
-                    state.selectedRemoteItem = item
-                } else {
-                    state.selectedItemForPreview = item
-                }
-            },
-            onEdit: { state.startEdit(for: item) },
-            onDelete: { state.delete(item: item) }
-        )
+    @ViewBuilder
+    private var items: some View {
+        ForEach(state.displayItems) { item in
+            LibraryItemView(
+                item: item,
+                layout: state.layout,
+                onTap: { state.selectedItemForPreview = item },
+                onEdit: { state.startEdit(for: item) },
+                onDelete: { state.delete(item: item) }
+            )
+        }
     }
-    
+
     @ViewBuilder
     private var emptyStateView: some View {
         if state.searchText.isEmpty {
@@ -143,7 +95,7 @@ struct SignLibraryContainerView: View {
             ContentUnavailableView.search
         }
     }
-    
+
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
         ToolbarItemGroup(placement: .navigationBarTrailing) {
@@ -151,7 +103,7 @@ struct SignLibraryContainerView: View {
                 state.isShowingDeleteConfirmation = true
             }
             .tint(.red)
-            
+
             Button(action: {
                 state.layout = (state.layout == .grid ? .list : .grid)
             }) {
